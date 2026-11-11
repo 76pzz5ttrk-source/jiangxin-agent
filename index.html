@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>匠心 · 通用技术概论智能学伴</title>
+<meta name="description" content="面向《通用技术概论》课程的智能学伴：概念讲解、苏格拉底追问、知识地图、智能练测与学习画像。" />
+<style>
+/* ============================================================
+ * 匠心 · 通用技术概论智能学伴 —— 样式表
+ * 设计取向：安静的学术感 + 克制的色彩，大面积留白，适合课堂投屏
+ * ============================================================ */
+
+:root{
+  --bg:#f4f6fb;
+  --panel:#ffffff;
+  --ink:#141a2b;
+  --ink-2:#38445e;
+  --muted:#6b7690;
+  --line:#e6e9f2;
+  --brand:#3355e0;
+  --brand-2:#7b5cf0;
+  --brand-soft:#eef1ff;
+  --ok:#12a06a;
+  --warn:#d98324;
+  --danger:#d94a4a;
+  --shadow:0 10px 30px rgba(23,32,64,.08);
+  --shadow-sm:0 4px 14px rgba(23,32,64,.06);
+  --radius:16px;
+}
+
+*{box-sizing:border-box;}
+
+html,body{height:100%;}
+
+body{
+  margin:0;
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 8% -10%, #e9edff 0%, rgba(233,237,255,0) 60%),
+    radial-gradient(900px 500px at 100% 0%, #f3eaff 0%, rgba(243,234,255,0) 55%),
+    var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#d5daea;border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ---------------- 侧边栏 ---------------- */
+.sidebar{
+  width:246px;flex:0 0 246px;
+  background:linear-gradient(180deg,#ffffff 0%,#fbfcff 100%);
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;
+  padding:20px 14px 14px;
+}
+
+.brand{display:flex;align-items:center;gap:11px;padding:2px 8px 20px;}
+.brand-mark{
+  width:42px;height:42px;border-radius:13px;flex:0 0 42px;
+  background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);
+  color:#fff;display:grid;place-items:center;
+  font-size:21px;font-weight:700;letter-spacing:1px;
+  box-shadow:0 6px 16px rgba(51,85,224,.3);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.35;min-width:0;}
+.brand-text strong{font-size:17px;letter-spacing:2px;}
+.brand-text span{font-size:11px;color:var(--muted);white-space:nowrap;}
+
+.nav{display:flex;flex-direction:column;gap:4px;}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  border:0;background:transparent;border-radius:11px;
+  padding:11px 12px;font-size:14px;color:var(--ink-2);text-align:left;
+  transition:.16s;
+}
+.nav-item .ico{font-style:normal;font-size:15px;width:18px;text-align:center;color:#8b95ad;}
+.nav-item:hover{background:#f3f5fb;}
+.nav-item.active{
+  background:linear-gradient(135deg,var(--brand-soft),#f6f2ff);
+  color:var(--brand);font-weight:600;
+  box-shadow:inset 0 0 0 1px #dfe4ff;
+}
+.nav-item.active .ico{color:var(--brand);}
+
+.side-card{
+  margin-top:auto;margin-bottom:12px;
+  background:linear-gradient(160deg,#f7f9ff,#fdfbff);
+  border:1px solid #e7ebfa;border-radius:14px;padding:13px 13px 11px;
+}
+.side-card-title{font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:9px;}
+.side-stat{display:flex;align-items:baseline;gap:5px;font-size:12px;color:var(--muted);margin-bottom:3px;}
+.side-stat b{font-size:17px;color:var(--ink);font-weight:700;}
+.side-progress{height:5px;border-radius:6px;background:#e6eafa;overflow:hidden;margin:8px 0 7px;}
+.side-progress i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--brand),var(--brand-2));transition:width .5s;}
+.side-card-foot{font-size:11px;color:#8b95ad;line-height:1.5;}
+
+.side-foot{font-size:11px;color:#98a1b6;padding:10px 10px 2px;line-height:1.7;}
+.side-foot .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:5px;vertical-align:middle;box-shadow:0 0 0 3px rgba(18,160,106,.15);}
+.side-foot .ver{color:#b3bacb;margin-top:2px;}
+
+/* ---------------- 主区 ---------------- */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+
+.topbar{
+  height:74px;flex:0 0 74px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.7);backdrop-filter:blur(8px);
+}
+.topbar-left h1{margin:0;font-size:17px;letter-spacing:.5px;}
+.topbar-left p{margin:3px 0 0;font-size:12px;color:var(--muted);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+
+.seg{display:flex;background:#eef1f8;border-radius:10px;padding:3px;gap:2px;}
+.seg-item{
+  border:0;background:transparent;border-radius:8px;
+  padding:6px 13px;font-size:12.5px;color:var(--muted);transition:.15s;
+}
+.seg-item.active{background:#fff;color:var(--brand);font-weight:600;box-shadow:var(--shadow-sm);}
+.seg.wide .seg-item{flex:1;padding:9px 10px;}
+
+.icon-btn{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;color:var(--ink-2);font-size:15px;display:grid;place-items:center;transition:.15s;
+}
+.icon-btn:hover{border-color:#cdd5ef;color:var(--brand);}
+
+/* ---------------- 视图切换 ---------------- */
+.view{display:none;flex:1;min-height:0;overflow:hidden;}
+.view.active{display:flex;}
+
+/* ---------------- 对话 ---------------- */
+#view-chat{gap:0;}
+
+.chat-wrap{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-scroll{flex:1;overflow-y:auto;padding:26px 30px 10px;scroll-behavior:smooth;display:flex;flex-direction:column;}
+.chat-scroll > .msg{width:100%;}
+
+.welcome{max-width:760px;margin:auto auto;text-align:center;width:100%;padding-bottom:10px;}
+.welcome-mark{
+  width:58px;height:58px;margin:0 auto 16px;border-radius:18px;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  color:#fff;display:grid;place-items:center;font-size:27px;font-weight:700;
+  box-shadow:0 12px 26px rgba(51,85,224,.28);
+}
+.welcome h2{margin:0 0 8px;font-size:23px;letter-spacing:1px;}
+.welcome-sub{margin:0 auto;max-width:600px;font-size:13.5px;line-height:1.85;color:var(--muted);}
+
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:26px 0 18px;text-align:left;}
+.quick-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:15px 16px;display:grid;grid-template-columns:26px 1fr;gap:2px 9px;
+  transition:.18s;text-align:left;
+}
+.quick-card:hover{border-color:#c9d3f7;box-shadow:var(--shadow);transform:translateY(-2px);}
+.quick-card i{grid-row:span 2;font-style:normal;font-size:17px;color:var(--brand);}
+.quick-card b{font-size:13.5px;font-weight:600;}
+.quick-card span{font-size:11.5px;color:var(--muted);line-height:1.5;}
+
+.hot-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.hot{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:12px;color:var(--ink-2);transition:.15s;}
+.hot:hover{border-color:#c9d3f7;color:var(--brand);}
+
+/* 消息 */
+.msg{display:flex;gap:12px;max-width:860px;margin:0 auto 22px;animation:rise .32s ease both;}
+@keyframes rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.msg-avatar{
+  width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;
+  font-size:14px;font-weight:700;
+}
+.msg.user{flex-direction:row-reverse;}
+.msg.user .msg-avatar{display:none;}
+.msg.bot .msg-avatar{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 6px 14px rgba(51,85,224,.25);}
+.msg-body{flex:1;min-width:0;}
+.msg-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.msg-meta b{font-size:12.5px;font-weight:600;}
+.msg-meta span{font-size:10.5px;color:#a3abbd;}
+.bubble{
+  background:#fff;border:1px solid var(--line);border-radius:3px 14px 14px 14px;
+  padding:15px 17px;box-shadow:var(--shadow-sm);font-size:13.5px;line-height:1.85;color:var(--ink-2);
+}
+.msg.user .bubble{background:linear-gradient(135deg,#3a5ce8,#6b52e8);color:#fff;border:0;border-radius:14px 3px 14px 14px;box-shadow:0 8px 20px rgba(51,85,224,.22);}
+.msg.user .msg-body{display:flex;flex-direction:column;align-items:flex-end;}
+
+.bubble h4{margin:0 0 8px;font-size:14.5px;color:var(--ink);letter-spacing:.3px;}
+.bubble .modchip{
+  display:inline-block;font-size:10.5px;color:var(--brand);background:var(--brand-soft);
+  border-radius:6px;padding:2px 7px;margin-left:6px;vertical-align:2px;font-weight:500;
+}
+.bubble p{margin:0 0 9px;}
+.bubble p:last-child{margin-bottom:0;}
+.bubble ol,.bubble ul{margin:6px 0 10px;padding-left:20px;}
+.bubble li{margin:5px 0;line-height:1.75;}
+.bubble .hl{color:var(--ink);font-weight:600;}
+.bubble .eg{
+  background:#f7f9ff;border-left:3px solid #c4d0f7;border-radius:0 8px 8px 0;
+  padding:9px 13px;font-size:12.5px;color:#4a5676;margin:10px 0;
+}
+.bubble .warnbox{
+  background:#fff8f0;border:1px solid #f6e3cc;border-radius:10px;
+  padding:10px 13px;font-size:12.5px;color:#8a5a1e;margin:10px 0 4px;
+}
+.bubble .warnbox b{color:#7a4a12;}
+
+.askmore{margin-top:12px;padding-top:11px;border-top:1px dashed #e8ecf6;}
+.askmore-label{font-size:11px;color:#95a0b8;margin-bottom:7px;letter-spacing:.5px;}
+.askchips{display:flex;flex-wrap:wrap;gap:7px;}
+.askchip{
+  border:1px solid #dfe5f6;background:#fbfcff;border-radius:16px;
+  padding:6px 12px;font-size:11.5px;color:#4a5676;transition:.15s;
+}
+.askchip:hover{border-color:var(--brand);color:var(--brand);background:#f4f6ff;}
+
+.msg-tools{display:flex;gap:10px;margin-top:8px;align-items:center;}
+.tool{font-size:11px;color:#a3abbd;border:0;background:transparent;padding:0;transition:.15s;}
+.tool:hover{color:var(--brand);}
+.srcchip{
+  font-size:10.5px;color:#7a86a3;background:#f3f5fb;border-radius:6px;padding:3px 8px;
+  border:0;transition:.15s;
+}
+.srcchip:hover{background:#e9edfb;color:var(--brand);}
+
+.typing{display:flex;gap:4px;padding:4px 0;}
+.typing i{width:6px;height:6px;border-radius:50%;background:#b9c2d8;animation:blink 1.2s infinite;}
+.typing i:nth-child(2){animation-delay:.18s;}
+.typing i:nth-child(3){animation-delay:.36s;}
+@keyframes blink{0%,60%,100%{opacity:.25;transform:translateY(0);}30%{opacity:1;transform:translateY(-3px);}}
+
+/* 输入区 */
+.composer{padding:10px 30px 16px;}
+.composer-box{
+  max-width:860px;margin:0 auto;background:#fff;border:1px solid #dfe4f2;border-radius:16px;
+  padding:12px 14px 10px;box-shadow:0 8px 30px rgba(23,32,64,.07);transition:.2s;
+}
+.composer-box:focus-within{border-color:#b9c6f2;box-shadow:0 10px 34px rgba(51,85,224,.12);}
+.composer-box textarea{
+  width:100%;border:0;outline:0;resize:none;font-size:13.5px;line-height:1.7;
+  font-family:inherit;color:var(--ink);background:transparent;max-height:120px;
+}
+.composer-box textarea::placeholder{color:#a8b0c4;}
+.composer-actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.chip-btn{font-size:11.5px;color:#6b7690;background:#f4f6fb;border:1px solid #e6eaf6;border-radius:14px;padding:6px 12px;transition:.15s;}
+.chip-btn:hover{color:var(--brand);border-color:#c9d3f7;}
+.send-btn{
+  display:flex;align-items:center;gap:6px;border:0;border-radius:10px;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;
+  padding:8px 15px;font-size:12.5px;font-weight:600;box-shadow:0 6px 16px rgba(51,85,224,.28);
+}
+.send-btn i{font-style:normal;font-size:13px;}
+.send-btn:disabled{opacity:.5;box-shadow:none;cursor:default;}
+.composer-hint{max-width:860px;margin:8px auto 0;text-align:center;font-size:10.5px;color:#a8b0c4;}
+
+/* 右侧栏 */
+.chat-side{
+  width:262px;flex:0 0 262px;border-left:1px solid var(--line);
+  background:rgba(255,255,255,.55);padding:20px 16px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:16px;
+}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;box-shadow:var(--shadow-sm);}
+.panel-head{
+  display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-2);
+  margin-bottom:11px;letter-spacing:.4px;
+}
+.panel-head em{font-style:normal;font-weight:400;font-size:10.5px;color:#9aa3b8;margin-left:auto;}
+
+.mod-list{display:flex;flex-direction:column;gap:2px;}
+.mod-row{
+  display:flex;align-items:center;gap:9px;padding:7px 6px;border-radius:9px;
+  border:0;background:transparent;text-align:left;width:100%;transition:.15s;
+}
+.mod-row:hover{background:#f6f8fe;}
+.mod-dot{width:8px;height:8px;border-radius:3px;flex:0 0 8px;}
+.mod-row b{font-size:12px;font-weight:500;color:var(--ink-2);}
+.mod-row span{font-size:10px;color:#a3abbd;margin-left:auto;}
+
+.suggest-list{display:flex;flex-direction:column;gap:2px;}
+.suggest{
+  border:0;background:transparent;text-align:left;padding:8px 6px;border-radius:9px;
+  font-size:11.5px;color:#5a6784;line-height:1.5;transition:.15s;
+}
+.suggest:hover{background:#f6f8fe;color:var(--brand);}
+.suggest::before{content:"↳ ";color:#c2c9db;}
+
+/* ---------------- 知识地图 ---------------- */
+#view-map{flex-direction:column;overflow-y:auto;padding:24px 30px 30px;}
+.map-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;max-width:1120px;margin:0 auto 18px;width:100%;}
+.map-intro h2{margin:0 0 6px;font-size:19px;}
+.map-intro p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.7;max-width:640px;}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--muted);white-space:nowrap;}
+.legend span{display:flex;align-items:center;gap:5px;}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;max-width:1120px;margin:0 auto 20px;width:100%;}
+.map-card{
+  background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;
+  text-align:left;transition:.18s;position:relative;overflow:hidden;
+}
+.map-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#cdd6f5;}
+.map-card.sel{border-color:var(--brand);box-shadow:0 0 0 3px rgba(51,85,224,.1);}
+.map-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.map-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;color:#fff;}
+.map-card h3{margin:0 0 3px;font-size:14.5px;letter-spacing:.5px;}
+.map-card .sub{font-size:11px;color:#9aa3b8;}
+.map-card .desc{font-size:11.5px;color:var(--muted);line-height:1.6;margin:9px 0 12px;min-height:36px;}
+.map-bar{height:4px;background:#eef1f8;border-radius:4px;overflow:hidden;}
+.map-bar i{display:block;height:100%;border-radius:4px;transition:width .4s;}
+.map-foot{display:flex;justify-content:space-between;font-size:10.5px;color:#9aa3b8;margin-top:7px;}
+
+.topic-panel{max-width:1120px;margin:0 auto;width:100%;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-sm);}
+.topic-empty{font-size:12.5px;color:#a3abbd;text-align:center;padding:26px 0;}
+.topic-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.topic-head h3{margin:0;font-size:15.5px;}
+.topic-head .tagx{font-size:10.5px;color:#7a86a3;background:#f3f5fb;padding:3px 8px;border-radius:6px;}
+.topic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.topic-item{
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;
+  transition:.15s;background:#fcfdff;
+}
+.topic-item:hover{border-color:#c9d3f7;background:#fff;}
+.topic-item .st{width:7px;height:7px;border-radius:50%;margin-top:6px;flex:0 0 7px;}
+.topic-item .t-main{flex:1;min-width:0;}
+.topic-item b{font-size:12.5px;display:block;margin-bottom:4px;}
+.topic-item p{margin:0;font-size:11px;color:var(--muted);line-height:1.6;}
+.topic-acts{display:flex;gap:6px;flex:0 0 auto;}
+.mini-btn{font-size:10.5px;border:1px solid #e2e7f5;background:#fff;border-radius:8px;padding:4px 9px;color:#5a6784;transition:.15s;}
+.mini-btn:hover{border-color:var(--brand);color:var(--brand);}
+
+/* ---------------- 练测 ---------------- */
+#view-quiz{overflow-y:auto;padding:26px 30px 30px;}
+.quiz-wrap{max-width:820px;margin:0 auto;width:100%;}
+
+.quiz-setup{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 28px;box-shadow:var(--shadow-sm);}
+.quiz-setup h2{margin:0 0 6px;font-size:19px;}
+.quiz-setup p{margin:0 0 20px;font-size:12.5px;color:var(--muted);line-height:1.7;}
+.filter-label{font-size:11.5px;color:#8b95ad;margin-bottom:8px;letter-spacing:.5px;}
+.mod-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.mchip{border:1px solid var(--line);background:#fff;border-radius:18px;padding:7px 14px;font-size:12px;color:var(--ink-2);transition:.15s;}
+.mchip.active{background:var(--brand-soft);border-color:#c3cff8;color:var(--brand);font-weight:600;}
+
+.quiz-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;box-shadow:var(--shadow-sm);}
+.quiz-top{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.quiz-prog{flex:1;height:5px;background:#eef1f8;border-radius:4px;overflow:hidden;}
+.quiz-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2));border-radius:4px;transition:width .4s;}
+.quiz-count{font-size:11px;color:#9aa3b8;}
+.q-tag{font-size:10.5px;background:#f3f5fb;color:#6b7690;border-radius:6px;padding:3px 8px;}
+.q-text{font-size:15px;line-height:1.8;margin:0 0 16px;color:var(--ink);}
+.q-opts{display:flex;flex-direction:column;gap:9px;}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;text-align:left;
+  border:1px solid var(--line);background:#fcfdff;border-radius:12px;padding:12px 14px;
+  font-size:13px;color:var(--ink-2);line-height:1.6;transition:.15s;
+}
+.opt:hover{border-color:#c9d3f7;background:#fff;}
+.opt .k{
+  width:21px;height:21px;flex:0 0 21px;border-radius:6px;background:#eef1f8;
+  display:grid;place-items:center;font-size:11px;font-weight:600;color:#6b7690;
+}
+.opt.correct{border-color:#8ee0b8;background:#f2fdf8;}
+.opt.correct .k{background:var(--ok);color:#fff;}
+.opt.wrong{border-color:#f3c0c0;background:#fff6f6;}
+.opt.wrong .k{background:var(--danger);color:#fff;}
+.opt.muted{opacity:.55;}
+
+.q-feedback{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:12.5px;line-height:1.8;animation:rise .3s both;}
+.q-feedback.ok{background:#f2fdf8;border:1px solid #cdeedd;color:#1a6b4b;}
+.q-feedback.no{background:#fff7f7;border:1px solid #f6d5d5;color:#8c3535;}
+.q-feedback b{display:block;margin-bottom:5px;font-size:13px;}
+.backlink{margin-top:10px;}
+
+.quiz-result{background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:var(--shadow-sm);text-align:center;}
+.score-ring{width:120px;height:120px;margin:6px auto 14px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--brand) var(--p,0%), #eef1f8 0);position:relative;}
+.score-ring::after{content:"";position:absolute;inset:9px;background:#fff;border-radius:50%;}
+.score-ring span{position:relative;z-index:1;font-size:26px;font-weight:700;color:var(--ink);}
+.score-ring span em{font-size:12px;font-style:normal;color:#9aa3b8;font-weight:400;}
+.quiz-result h2{margin:0 0 6px;font-size:18px;}
+.quiz-result .lead{font-size:12.5px;color:var(--muted);margin-bottom:20px;}
+.diag-list{text-align:left;display:flex;flex-direction:column;gap:8px;margin:16px 0 22px;}
+.diag-item{display:flex;gap:10px;font-size:12.5px;line-height:1.7;color:var(--ink-2);background:#fbfcff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;}
+.diag-item i{font-style:normal;}
+.btn{border:0;border-radius:11px;padding:11px 22px;font-size:13px;font-weight:600;transition:.15s;}
+.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 8px 20px rgba(51,85,224,.26);}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink-2);}
+.btn.ghost:hover{border-color:#c9d3f7;color:var(--brand);}
+.btn-row{display:flex;gap:10px;justify-content:center;}
+
+/* ---------------- 学习档案 ---------------- */
+#view-profile{flex-direction:column;overflow-y:auto;padding:24px 30px 30px;gap:16px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;max-width:1120px;margin:0 auto;width:100%;}
+.stat-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-sm);}
+.stat-card span{font-size:11.5px;color:var(--muted);display:block;margin-bottom:8px;}
+.stat-card b{font-size:26px;letter-spacing:.5px;}
+.stat-card em{font-style:normal;font-size:11.5px;color:#9aa3b8;margin-left:3px;}
+.profile-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:13px;max-width:1120px;margin:0 auto;width:100%;align-items:start;}
+#radar{width:100%;height:auto;display:block;}
+.diag{display:flex;flex-direction:column;gap:10px;}
+.diag-line{font-size:12.5px;line-height:1.8;color:var(--ink-2);background:#fbfcff;border:1px solid var(--line);border-left:3px solid #c4d0f7;border-radius:0 10px 10px 0;padding:11px 13px;}
+.diag-line b{color:var(--brand);}
+
+.wrong-list{display:flex;flex-direction:column;gap:8px;}
+.wrong-item{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#fcfdff;}
+.wrong-item .qt{font-size:12.5px;line-height:1.7;flex:1;color:var(--ink-2);}
+.wrong-item .qtag{font-size:10px;color:#b0672a;background:#fff5e9;border-radius:6px;padding:3px 7px;white-space:nowrap;}
+.empty{font-size:12px;color:#a3abbd;text-align:center;padding:24px 0;}
+
+/* ---------------- 弹窗 / 提示 ---------------- */
+.modal{position:fixed;inset:0;background:rgba(20,26,43,.42);backdrop-filter:blur(3px);display:none;place-items:center;z-index:60;}
+.modal.show{display:grid;}
+.modal-card{width:520px;max-width:92vw;background:#fff;border-radius:18px;box-shadow:0 30px 70px rgba(15,23,45,.28);overflow:hidden;animation:rise .24s both;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line);}
+.modal-head h3{margin:0;font-size:15px;}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:20px;}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:9px;}
+.tip{font-size:11.5px;color:var(--muted);line-height:1.75;margin:9px 0 0;}
+.field .btn{margin-top:2px;}
+
+.toast{
+  position:fixed;left:50%;bottom:40px;transform:translate(-50%,20px);
+  background:rgba(20,26,43,.92);color:#fff;font-size:12.5px;padding:10px 18px;border-radius:10px;
+  opacity:0;pointer-events:none;transition:.25s;z-index:80;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* ---------------- 手机底部导航 ---------------- */
+.mobile-nav{display:none;}
+
+@media (max-width:640px){
+  .sidebar{display:none;}
+  .mobile-nav{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;
+    background:rgba(255,255,255,.97);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0);
+  }
+  .mobile-nav-item{
+    flex:1;border:0;background:transparent;padding:9px 0 10px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    font-size:10.5px;color:#8b95ad;
+  }
+  .mobile-nav-item i{font-style:normal;font-size:17px;line-height:1;}
+  .mobile-nav-item.active{color:var(--brand);font-weight:600;}
+  .main{padding-bottom:56px;}
+  .composer-hint{display:none;}
+  .composer{padding-bottom:10px;}
+  .quick-grid{gap:10px;}
+  .chat-scroll{padding-top:16px;}
+}
+
+/* ---------------- 响应式 ---------------- */
+@media (max-width:1200px){
+  .chat-side{display:none;}
+  .map-grid{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:900px){
+  .sidebar{width:72px;flex:0 0 72px;padding:18px 8px;}
+  .brand-text,.nav-item span,.side-card,.side-foot{display:none;}
+  .brand{justify-content:center;padding-bottom:18px;}
+  .nav-item{justify-content:center;padding:12px 0;}
+  .map-grid{grid-template-columns:repeat(2,1fr);}
+  .topic-grid{grid-template-columns:1fr;}
+  .quick-grid{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .profile-grid{grid-template-columns:1fr;}
+  .chat-scroll,.composer,#view-map,#view-quiz,#view-profile{padding-left:16px;padding-right:16px;}
+  .topbar{padding:0 16px;}
+  .topbar-left p{display:none;}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= 侧边导航 ================= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">匠</div>
+      <div class="brand-text">
+        <strong>匠心</strong>
+        <span>通用技术概论 · 智能学伴</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="chat">
+        <i class="ico">◍</i><span>对话学习</span>
+      </button>
+      <button class="nav-item" data-view="map">
+        <i class="ico">◎</i><span>知识地图</span>
+      </button>
+      <button class="nav-item" data-view="quiz">
+        <i class="ico">✎</i><span>智能练测</span>
+      </button>
+      <button class="nav-item" data-view="profile">
+        <i class="ico">◔</i><span>学习档案</span>
+      </button>
+    </nav>
+
+    <div class="side-card">
+      <div class="side-card-title">今日学习</div>
+      <div class="side-stat"><b id="miniAsk">0</b><span>次提问</span></div>
+      <div class="side-stat"><b id="miniQuiz">0</b><span>道练习</span></div>
+      <div class="side-progress"><i id="miniBar" style="width:0%"></i></div>
+      <div class="side-card-foot" id="miniTip">先向学伴提一个问题吧</div>
+    </div>
+
+    <div class="side-foot">
+      <span class="dot"></span> 本地知识库 · 离线可用
+      <div class="ver">v1.0 · 课程作业演示版</div>
+    </div>
+  </aside>
+
+  <!-- ================= 主区域 ================= -->
+  <main class="main">
+
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="viewTitle">对话学习</h1>
+        <p id="viewSub">用问题驱动理解，让每一次追问都指向“会设计”</p>
+      </div>
+      <div class="topbar-right">
+        <div class="seg" id="modeSeg" title="切换学伴的教学策略">
+          <button class="seg-item active" data-mode="guide">引导式</button>
+          <button class="seg-item" data-mode="direct">讲解式</button>
+        </div>
+        <button class="icon-btn" id="btnSettings" title="设置">⚙</button>
+      </div>
+    </header>
+
+    <!-- ============ 视图：对话 ============ -->
+    <section class="view active" id="view-chat">
+      <div class="chat-wrap">
+        <div class="chat-scroll" id="chatScroll">
+          <div class="welcome" id="welcome">
+            <div class="welcome-mark">匠</div>
+            <h2>你好，我是「匠心」</h2>
+            <p class="welcome-sub">《通用技术概论》课程的智能学伴。我不直接给你答案，而是陪你把“技术—设计—结构—流程—系统—控制”串成一条能动手的线索。</p>
+
+            <div class="quick-grid">
+              <button class="quick-card" data-ask="技术的本质是什么？技术有哪些特征？">
+                <i>◎</i><b>讲概念</b><span>把抽象的定义讲成看得见的例子</span>
+              </button>
+              <button class="quick-card" data-ask="稳定性与强度有什么区别？">
+                <i>⚖</i><b>辨混淆</b><span>专治“好像都懂、一做就错”</span>
+              </button>
+              <button class="quick-card" data-ask="我想做一个校园智能分类垃圾桶，怎么开始？">
+                <i>✎</i><b>陪项目</b><span>从驱动性问题到模型测试</span>
+              </button>
+              <button class="quick-card" data-ask="我该怎么安排这学期通用技术概论的复习？">
+                <i>◔</i><b>做规划</b><span>按知识地图生成学习路径</span>
+              </button>
+            </div>
+
+            <div class="hot-row" id="hotRow"></div>
+          </div>
+        </div>
+
+        <div class="composer">
+          <div class="composer-box">
+            <textarea id="input" rows="1" placeholder="问点什么吧，例如：开环控制和闭环控制怎么区分？"></textarea>
+            <div class="composer-actions">
+              <button class="chip-btn" id="btnQuizAsk">出一题考我</button>
+              <button class="send-btn" id="btnSend" title="发送 (Enter)">
+                <span>发送</span><i>↑</i>
+              </button>
+            </div>
+          </div>
+          <div class="composer-hint">Enter 发送 · Shift+Enter 换行 · 回答均标注知识依据，可点击查看原文</div>
+        </div>
+      </div>
+
+      <!-- 右侧学习导航 -->
+      <aside class="chat-side">
+        <div class="panel">
+          <div class="panel-head">知识模块<em>7</em></div>
+          <div class="mod-list" id="modList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">你可能想问</div>
+          <div class="suggest-list" id="suggestList"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ============ 视图：知识地图 ============ -->
+    <section class="view" id="view-map">
+      <div class="map-intro">
+        <div>
+          <h2>七模块 · 五素养</h2>
+          <p>课程内容不是零散知识点，而是一条“认识技术 → 学会设计 → 分析结构/流程/系统/控制 → 形成素养”的进阶链。点击模块查看知识点与掌握度。</p>
+        </div>
+        <div class="legend">
+          <span><i style="background:#e2e8f4"></i>未开始</span>
+          <span><i style="background:#ffd7a8"></i>进行中</span>
+          <span><i style="background:#8ee0b8"></i>已掌握</span>
+        </div>
+      </div>
+      <div class="map-grid" id="mapGrid"></div>
+      <div class="topic-panel" id="topicPanel">
+        <div class="topic-empty">选择一个模块，查看它的知识点清单。</div>
+      </div>
+    </section>
+
+    <!-- ============ 视图：练测 ============ -->
+    <section class="view" id="view-quiz">
+      <div class="quiz-wrap" id="quizWrap"></div>
+    </section>
+
+    <!-- ============ 视图：学习档案 ============ -->
+    <section class="view" id="view-profile">
+      <div class="stat-row">
+        <div class="stat-card"><span>累计提问</span><b id="statAsk">0</b><em>次</em></div>
+        <div class="stat-card"><span>累计练习</span><b id="statQuiz">0</b><em>题</em></div>
+        <div class="stat-card"><span>答题正确率</span><b id="statAcc">—</b><em></em></div>
+        <div class="stat-card"><span>连续学习</span><b id="statDays">0</b><em>天</em></div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="panel">
+          <div class="panel-head">核心素养画像 <em>基于答题与提问证据</em></div>
+          <canvas id="radar" width="520" height="420"></canvas>
+        </div>
+        <div class="panel">
+          <div class="panel-head">学伴的诊断建议</div>
+          <div class="diag" id="diag"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">错题本 <em id="wrongCount"></em></div>
+        <div class="wrong-list" id="wrongList"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ================= 设置弹窗 ================= -->
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>学伴设置</h3>
+      <button class="icon-btn" id="btnCloseModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>教学策略</label>
+        <div class="seg wide" id="modeSeg2">
+          <button class="seg-item active" data-mode="guide">引导式（先问后讲）</button>
+          <button class="seg-item" data-mode="direct">讲解式（先讲后练）</button>
+        </div>
+        <p class="tip">引导式更接近“认知学徒制”：先抛出问题激活经验，再给定义与要点；讲解式适合复习与考前串讲。</p>
+      </div>
+      <div class="field">
+        <label>学习数据</label>
+        <button class="btn ghost" id="btnReset">清空本地学习记录</button>
+        <p class="tip">所有数据保存在浏览器本地（localStorage），不上传服务器，符合课程数据伦理要求。</p>
+      </div>
+      <div class="field">
+        <label>关于</label>
+        <p class="tip">「匠心」v1.0 · 《通用技术概论》课程智能学伴。知识库覆盖 7 模块 32 个知识点、26 道分层习题，支持离线运行；可扩展接入大模型以增强开放问答。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ================= 手机底部导航 ================= -->
+<nav class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-item active" data-view="chat"><i>◍</i><span>对话</span></button>
+  <button class="mobile-nav-item" data-view="map"><i>◎</i><span>地图</span></button>
+  <button class="mobile-nav-item" data-view="quiz"><i>✎</i><span>练测</span></button>
+  <button class="mobile-nav-item" data-view="profile"><i>◔</i><span>档案</span></button>
+</nav>
+
+<script>
+/* 开发期错误提示：脚本异常时在页面底部显示原因，便于排查 */
+window.addEventListener("error", e => {
+  const d = document.createElement("pre");
+  d.style.cssText = "position:fixed;left:0;right:0;bottom:0;background:#fee;color:#900;padding:10px;z-index:999;font-size:12px;white-space:pre-wrap;margin:0";
+  d.textContent = "JS 错误: " + e.message + " @ " + (e.filename || "").split("/").pop() + ":" + e.lineno;
+  document.body.appendChild(d);
+});
+</script>
+
+<script>
+﻿/* ============================================================
+ * 匠心 · 通用技术概论智能学伴
+ * data.js —— 课程知识库 / 题库 / 素养维度 / 意图词典
+ * 全部内容本地内置，离线可用，不依赖网络与外部接口。
+ * ============================================================ */
+
+const COURSE = {
+  name: "通用技术概论",
+  agent: "匠心",
+  slogan: "从“会做题”走向“会设计”的通用技术学习伙伴",
+};
+
+/* ---------- 七大模块（课程知识地图的一级节点） ---------- */
+const MODULES = [
+  { id: "m1", name: "技术之本", sub: "技术的本质与特征", icon: "◎", color: "#2563eb",
+    desc: "理解技术是什么、技术为何物，建立技术意识与价值判断。",
+    comp: ["技术意识"], items: ["k1", "k2", "k3", "k4", "k5"] },
+  { id: "m2", name: "设计之道", sub: "设计过程与方法", icon: "✎", color: "#7c3aed",
+    desc: "从发现问题到方案优化，掌握设计的一般过程与创新方法。",
+    comp: ["创新设计", "图样表达"], items: ["k6", "k7", "k8", "k9", "k10", "k11", "k12", "k13"] },
+  { id: "m3", name: "结构之力", sub: "结构与设计", icon: "△", color: "#0891b2",
+    desc: "分析结构的受力、稳定性与强度，用工程思维解决真实问题。",
+    comp: ["工程思维"], items: ["k14", "k15", "k16", "k17", "k18"] },
+  { id: "m4", name: "流程之序", sub: "流程与设计", icon: "⇉", color: "#059669",
+    desc: "用环节与时序描述做事的过程，学会分析与优化流程。",
+    comp: ["工程思维"], items: ["k19", "k20", "k21"] },
+  { id: "m5", name: "系统之维", sub: "系统与设计", icon: "⬡", color: "#d97706",
+    desc: "以整体视角看待要素、关系与环境，进行系统分析与优化。",
+    comp: ["工程思维"], items: ["k22", "k23", "k24"] },
+  { id: "m6", name: "控制之智", sub: "控制与设计", icon: "◉", color: "#dc2626",
+    desc: "认识开环与闭环，理解反馈，动手搭建简单的控制系统。",
+    comp: ["工程思维", "物化能力"], items: ["k25", "k26", "k27", "k28", "k29"] },
+  { id: "m7", name: "素养之核", sub: "课程理解与评价", icon: "✦", color: "#db2777",
+    desc: "把握学科核心素养、大单元项目式学习与表现性评价。",
+    comp: ["技术意识", "创新设计"], items: ["k30", "k31", "k32"] },
+];
+
+/* ---------- 五大核心素养（画像雷达图维度） ---------- */
+const COMPETENCIES = [
+  { id: "c1", name: "技术意识", desc: "对技术现象敏感，能作出价值判断" },
+  { id: "c2", name: "工程思维", desc: "用系统与结构的方法分析和权衡" },
+  { id: "c3", name: "创新设计", desc: "发现问题并提出多样化的解决方案" },
+  { id: "c4", name: "图样表达", desc: "用技术语言准确表达设计意图" },
+  { id: "c5", name: "物化能力", desc: "把方案做成可测试的模型或原型" },
+];
+
+/* ---------- 知识库 ---------- */
+const KB = [
+  {
+    id: "k1", title: "技术的本质", module: "m1",
+    kw: ["技术是什么", "技术的本质", "本质", "技术定义", "技术的内涵"],
+    def: "技术是人类为满足自身需求，运用科学知识、经验与技能，对自然和社会进行改造的手段、方法与工具的总和。",
+    points: [
+      "技术具有自然属性：必须遵循自然规律，受材料、能量、信息等客观条件制约。",
+      "技术具有社会属性：目的、价值与后果由社会需求和社会制度塑造。",
+      "技术是“手段—方法—工具”的统一体，既包括实物（工具、设备），也包括知识（工艺、规范、图纸）。",
+      "技术回答“怎么做”，科学回答“是什么、为什么”，二者相互支撑但目标不同。",
+    ],
+    example: "同样是“削苹果”，石片、不锈钢刀、削皮机体现了不同时代的技术水平，但都遵循杠杆与切削的共同原理——这就是技术自然属性与社会属性的统一。",
+    pitfalls: ["把技术等同于“高科技产品”，忽视工艺、规范、经验等软技术。", "认为技术等于科学的直接应用，忽略技术自身的试错与积累。"],
+    related: ["k2", "k3"],
+    asks: ["既然技术要遵循自然规律，那技术还有“创造”的空间吗？", "你能举一个“软技术”的例子吗？"],
+  },
+  {
+    id: "k2", title: "技术的性质与特征", module: "m1",
+    kw: ["技术特征", "目的性", "实践性", "综合性", "创新性", "两面性", "专利性", "技术性质"],
+    def: "技术具有目的性、实践性、综合性、创新性和两面性五个基本特征，这五个特征共同决定了技术活动的复杂性。",
+    points: [
+      "目的性：技术总是为满足人的某种需要而产生，没有无目的的技术。",
+      "实践性：技术必须“做出来、用起来”，在真实情境中接受检验。",
+      "综合性：技术活动综合运用多学科知识与多种社会条件。",
+      "创新性：技术的生命力在于改进与创造，重复不是技术。",
+      "两面性：同一技术既能造福，也可能带来风险与伦理困境。",
+      "专利性（部分教材单列）：技术创新成果可通过知识产权制度获得保护与激励。",
+    ],
+    example: "塑料袋的发明解决了轻便包装问题（目的性、创新性），但也带来“白色污染”（两面性），因此需要可降解材料与回收制度的综合应对（综合性）。",
+    pitfalls: ["只记五条名词，不会用特征去分析真实案例。", "把“两面性”理解为技术本身有善恶，忽略使用方式与社会制度的作用。"],
+    related: ["k1", "k3", "k5"],
+    asks: ["如果一项技术只有好处没有风险，还需要做技术试验吗？", "“两面性”要求我们在设计时增加哪一步？"],
+  },
+  {
+    id: "k3", title: "技术伦理与技术的两面性", module: "m1",
+    kw: ["技术伦理", "伦理", "安全", "隐私", "责任", "两面性", "技术风险", "科技向善"],
+    def: "技术伦理关注技术活动中的价值冲突与责任归属，要求设计者在追求功能的同时保障安全、尊重隐私、维护公平。",
+    points: [
+      "安全优先：任何设计都不能以牺牲使用者的安全为代价。",
+      "知情同意与隐私保护：涉及数据采集的产品必须明示用途并取得同意。",
+      "公平与包容：警惕“数字鸿沟”，考虑老人、儿童、残障人士的使用需求。",
+      "责任可追溯：设计者、生产者、使用者共同承担技术后果。",
+    ],
+    example: "智能手环采集心率与睡眠数据，产品必须说明数据用途、允许用户导出与删除，并提供“不联网也能用”的基础模式。",
+    pitfalls: ["把伦理问题当成“道德说教”，不落到设计约束上。", "认为“技术中立”，忽视设计选择本身内含的价值取向。"],
+    related: ["k2", "k17", "k30"],
+    asks: ["如果用户为了便利主动放弃隐私，设计者就可以采集一切数据吗？", "你能把一条伦理要求翻译成一条设计约束吗？"],
+  },
+  {
+    id: "k4", title: "技术与人、社会、自然的关系", module: "m1",
+    kw: ["技术与社会", "技术与自然", "可持续发展", "绿色发展", "技术的影响", "双刃剑"],
+    def: "技术推动社会发展，也受社会需求与制度约束；技术改变人与自然的关系，必须走可持续发展之路。",
+    points: [
+      "技术是社会发展的动力：三次工业革命重塑生产方式与生活方式。",
+      "社会反作用于技术：需求、资本、政策、文化决定技术的方向与速度。",
+      "技术改变人与自然的关系：从“敬畏自然”到“改造自然”，再到“人与自然和谐共生”。",
+      "可持续发展的三条底线：生态承载、社会公平、经济可行。",
+    ],
+    example: "新能源汽车不是单纯的技术升级，而是能源结构、产业政策、消费观念共同作用的结果，其环境效益还要看电力来源。",
+    pitfalls: ["技术决定论：认为技术自动带来进步。", "只谈技术的好处，不做全生命周期（LCA）的成本分析。"],
+    related: ["k2", "k3"],
+    asks: ["用全生命周期视角看，一件校服的环境代价出现在哪些环节？", "“先污染后治理”为什么在技术上是低效的？"],
+  },
+  {
+    id: "k5", title: "技术发明、技术革新与技术史", module: "m1",
+    kw: ["技术发明", "技术革新", "技术史", "工业革命", "蒸汽机", "技术发展", "技术范式"],
+    def: "技术发明是创造出前所未有的技术成果，技术革新是对已有技术的改进与优化；二者共同推动技术的历史演进。",
+    points: [
+      "发明强调“从无到有”，革新强调“从有到优”，革新往往带来更广泛的社会效益。",
+      "第一次工业革命（蒸汽机）解决动力问题，第二次（电力、内燃机）解决能量输配，第三次（计算机、互联网）解决信息处理。",
+      "当代技术呈现智能化、绿色化、融合化趋势。",
+      "技术发展具有累积性与路径依赖，旧技术不会立刻消失。",
+    ],
+    example: "瓦特改良蒸汽机属于典型的“革新”，却成为工业革命的引擎；这说明改进型创新同样具有划时代意义。",
+    pitfalls: ["把发明与革新混为一谈。", "把技术史背成年份表，忽略技术—社会互动。"],
+    related: ["k1", "k2"],
+    asks: ["手机从按键到触屏，属于发明还是革新？", "为什么说“路径依赖”会阻碍新技术推广？"],
+  },
+  {
+    id: "k6", title: "设计的一般过程", module: "m2",
+    kw: ["设计过程", "设计的一般过程", "设计步骤", "流程", "五阶段", "发现与明确问题"],
+    def: "设计的一般过程包括：发现与明确问题、制定设计方案、制作模型或原型、测试评估与优化、产品的使用与维护五个阶段。",
+    points: [
+      "① 发现与明确问题：调查需求，撰写设计任务书，明确功能、约束与评价指标。",
+      "② 制定设计方案：收集信息、构思方案、呈现与筛选、绘制图样。",
+      "③ 制作模型或原型：从草模到功能原型，验证关键结构。",
+      "④ 测试、评估及优化：技术试验 + 评价量规 + 迭代改进。",
+      "⑤ 产品的使用与维护：说明书、保养、回收，体现全生命周期意识。",
+      "五个阶段不是单向流水线，而是带反馈回路的迭代过程。",
+    ],
+    example: "设计“教室护眼台灯”：先调研眩光与照度需求→画出三种灯臂结构草图→用瓦楞纸做草模→用照度计测试并调整灯罩角度→编写使用与保养说明。",
+    pitfalls: ["跳过“明确问题”直接画图，导致方案与需求脱节。", "把过程当线性步骤，缺少迭代与回退。"],
+    related: ["k7", "k8", "k11", "k12"],
+    asks: ["如果测试发现方案根本满足不了需求，应该回到哪一步？", "设计任务书里至少要写清哪三件事？"],
+  },
+  {
+    id: "k7", title: "设计的原则", module: "m2",
+    kw: ["设计原则", "创新原则", "实用原则", "经济原则", "美观原则", "道德原则", "技术规范原则", "可持续", "七原则"],
+    def: "设计应遵循创新、实用、经济、美观、道德、技术规范、可持续发展七项原则，它们相互联系又常有冲突。",
+    points: [
+      "创新：方案具有新颖性与独特性。",
+      "实用：功能可靠、使用方便、符合人机工程。",
+      "经济：全生命周期成本可控，性价比合理。",
+      "美观：造型、色彩、材质协调，符合审美与场合。",
+      "道德：安全、诚信、不损害他人与社会利益。",
+      "技术规范：符合国家标准、行业标准与安全规范。",
+      "可持续发展：节约资源、易于回收、低污染。",
+      "原则之间需要权衡：加厚外壳更结实（实用），却增加成本与重量（经济）。",
+    ],
+    example: "一次性餐具若只追求“经济”，就会牺牲“可持续”；可降解材料 + 合理定价才是多原则平衡。",
+    pitfalls: ["把七原则当口号背诵，不会在方案比较中有依据地取舍。", "忽视技术规范，做出的产品无法生产或存在安全隐患。"],
+    related: ["k6", "k12", "k16"],
+    asks: ["七原则冲突时，用什么方法作出取舍？", "为什么“技术规范”是不可让渡的底线？"],
+  },
+  {
+    id: "k8", title: "发现与明确问题", module: "m2",
+    kw: ["发现问题", "明确问题", "需求分析", "设计任务书", "调查", "用户需求", "痛点"],
+    def: "发现问题是设计起点：从生活观察、用户访谈、文献与专利检索中找到真实需求，并把它转化为可执行的设计任务。",
+    points: [
+      "发现问题的途径：观察生活、用户访谈、问卷、现场试验、文献与专利检索。",
+      "明确问题要回答：为谁设计？解决什么痛点？在什么场景使用？有哪些约束（尺寸、成本、安全、工期）？",
+      "设计任务书应包含：功能要求、性能指标、约束条件、评价标准。",
+      "判断问题价值：需求是否真实、是否普遍、现有方案是否不足、自己是否有条件实现。",
+    ],
+    example: "“老人起夜看不见”是现象，“在不打扰同伴的前提下提供安全照明”才是被明确的设计问题——它直接决定了方案（感应、低亮度、暖光）。",
+    pitfalls: ["把现象当问题，方案因此失去针对性。", "需求过大过泛，无法在课程周期内完成。"],
+    related: ["k6", "k9", "k16"],
+    asks: ["怎样用一句话检验你的问题是否“明确”？", "如果需求真实但你没有加工条件，该怎么办？"],
+  },
+  {
+    id: "k9", title: "方案的构思方法", module: "m2",
+    kw: ["方案构思", "头脑风暴", "形态分析", "5W2H", "TRIZ", "联想法", "移植法", "创新方法", "设问法"],
+    def: "常用构思方法包括头脑风暴法、形态分析法、5W2H 设问法、联想法、移植法与 TRIZ 发明原理等。",
+    points: [
+      "头脑风暴：延迟评判、追求数量、鼓励联想、搭便车，会后归并筛选。",
+      "形态分析法：把方案分解为若干独立要素，列出每个要素的备选形态，组合成新方案。",
+      "5W2H：从为什么、做什么、谁来做、何时、何处、怎么做、成本多少七个角度追问。",
+      "TRIZ：用矛盾矩阵与 40 条发明原理解决“既要…又要…”的技术矛盾（如分割、预先作用、柔性化）。",
+      "构思要发散，筛选要收敛：先做多方案，再用评价量规收敛。",
+    ],
+    example: "设计“可折叠书架”时，形态分析把方案拆成“支撑方式×折叠方式×连接方式”，组合出 3×3×2 共 18 种可能，再筛选出 3 个可行方案。",
+    pitfalls: ["头脑风暴时边想边否定，导致方案数量不足。", "只做“灵感式”构思，缺少结构化发散工具。"],
+    related: ["k6", "k10", "k16"],
+    asks: ["‘既要轻又要结实’属于哪类技术矛盾？能用哪条发明原理？", "头脑风暴为什么必须“延迟评判”？"],
+  },
+  {
+    id: "k10", title: "技术试验", module: "m2",
+    kw: ["技术试验", "试验方法", "优选试验", "模拟试验", "虚拟试验", "强化试验", "破坏性试验", "试验报告"],
+    def: "技术试验是在人为控制条件下对技术方案进行验证与优化的实践活动，是设计过程中不可替代的一环。",
+    points: [
+      "优选试验：在多个方案/参数中比较，找出最优（如不同配方的对比）。",
+      "模拟试验：用模型模拟真实工况（如风洞、振动台）。",
+      "虚拟试验：借助仿真软件在计算机中试验（如有限元受力分析）。",
+      "强化试验：施加超出正常范围的载荷，检验极限性能（如跌落、超载）。",
+      "破坏性试验：试验至损坏，获取极限数据（如材料拉伸至断裂）。",
+      "试验报告要素：目的、方法、条件、数据记录、结论与改进建议。",
+    ],
+    example: "设计承重小凳时，先做虚拟受力分析，再用沙袋做逐级加载的强化试验，记录形变与破坏位置，据此加强节点。",
+    pitfalls: ["把技术试验等同于科学实验，忽视其“为设计服务”的目的。", "只做一次试验就下结论，缺少重复与对照。"],
+    related: ["k6", "k14", "k15"],
+    asks: ["什么情况下必须用破坏性试验？", "你的试验方案里，自变量和因变量分别是什么？"],
+  },
+  {
+    id: "k11", title: "技术语言与三视图", module: "m2",
+    kw: ["技术语言", "三视图", "正投影", "主视图", "俯视图", "左视图", "图样", "轴测图", "尺寸标注", "剖视图"],
+    def: "技术语言是工程交流的通用符号系统，包括图样、模型、符号与图表；三视图是其中的核心表达方式。",
+    points: [
+      "三视图遵循正投影规律：主视图（正面）、俯视图（上方俯视）、左视图（左侧观察）。",
+      "投影规律：长对正、高平齐、宽相等。",
+      "画图顺序：先画基准线 → 主视图 → 俯视图 → 左视图 → 检查补线。",
+      "看不见的轮廓用虚线；对称结构画对称中心线（点划线）。",
+      "尺寸标注三要素：尺寸界线、尺寸线、尺寸数字；单位默认为毫米。",
+      "内部结构复杂时用剖视图表达，剖面线为 45° 细实线。",
+    ],
+    example: "设计一个 L 形支架，主视图表达主要轮廓与孔位，俯视图表达底板宽度与孔距，左视图表达立板厚度——三图配合才能唯一确定形状。",
+    pitfalls: ["三视图位置摆错（俯视图应在主视图正下方）。", "把虚线当实线，或漏画中心线、漏标尺寸。"],
+    related: ["k12", "k6"],
+    asks: ["为什么俯视图与左视图要“宽相等”？", "哪些结构必须用剖视图才能表达清楚？"],
+  },
+  {
+    id: "k12", title: "模型与原型", module: "m2",
+    kw: ["模型", "原型", "草模", "概念模型", "结构模型", "功能模型", "展示模型", "3D打印"],
+    def: "模型是按一定比例对设计对象的简化表达；原型是最接近最终产品的样品。二者用于验证、交流和展示。",
+    points: [
+      "草模：快速表达构想，纸板、黏土即可。",
+      "概念模型：表达形态与使用方式。",
+      "结构模型：验证受力与连接，如桁架缩尺模型。",
+      "功能模型：验证工作原理是否可行。",
+      "展示模型：用于汇报与评审，注重外观与工艺。",
+      "原型按阶段分 α 原型（验证功能）、β 原型（验证体验）。",
+    ],
+    example: "设计折叠椅：纸板草模看比例，1:5 木条模型测受力，激光切割 + 3D 打印做成 1:1 功能原型，最后喷漆做成展示模型。",
+    pitfalls: ["一上手就做 1:1 实物，浪费材料与时间。", "模型只求好看，不承载验证功能。"],
+    related: ["k10", "k11"],
+    asks: ["你现在的阶段该做哪一种模型？为什么？", "模型简化了什么、保留了什么，依据是什么？"],
+  },
+  {
+    id: "k13", title: "设计评价与方案优化", module: "m2",
+    kw: ["设计评价", "评价量规", "加权评分", "方案优化", "迭代", "评价指标"],
+    def: "设计评价是依据指标对方案进行价值判断，评价结果为优化提供方向；常用评价量规与加权评分法。",
+    points: [
+      "评价维度来自设计原则与设计任务书：功能、安全、人机、成本、美观、环保。",
+      "评价量规：为每个维度设定可观察的水平描述（如 1—5 级）。",
+      "加权评分：总分 = Σ（指标得分 × 权重），权重体现需求优先级。",
+      "优化路径：针对低分指标做定点改进，而不是整体推倒重来。",
+      "引入他评与自评：同伴评审、用户试用、教师点评。",
+    ],
+    example: "三款台灯方案在“照度均匀性”上都得 3 分，但权重为 0.3，该项直接损失 0.6 分，因此优先改进导光板。",
+    pitfalls: ["评价指标与任务书脱节，凭感觉打分。", "只评价不迭代，评价流于形式。"],
+    related: ["k7", "k6", "k30"],
+    asks: ["权重该如何确定才不失偏颇？", "如果所有方案都低于及格线，说明什么？"],
+  },
+  {
+    id: "k14", title: "结构的类型", module: "m3",
+    kw: ["结构", "实体结构", "框架结构", "壳体结构", "桁架", "拱", "索", "薄壳", "结构类型"],
+    def: "结构是事物的各组成部分之间的有序搭配与排列。常见类型有实体结构、框架结构和壳体结构。",
+    points: [
+      "实体结构：靠自身质量承受外力，如堤坝、城墙。",
+      "框架结构：由梁、柱、杆件连接而成，省材料、跨度大，如脚手架、桁架桥。",
+      "壳体结构：以曲面薄壁受力，如头盔、蛋壳、穹顶。",
+      "组合结构：实际工程多是三种类型的组合，如自行车（框架 + 壳体 + 实体）。",
+      "桁架的基本单元是三角形，因为三角形具有几何稳定性。",
+    ],
+    example: "头盔是壳体结构，受冲击时把集中力分散到整个曲面；自行车车架是框架结构，靠三角形保持形状稳定。",
+    pitfalls: ["把“结构”只理解成建筑物的骨架，忽略产品与生物结构。", "认为壳体越厚越结实，忽略曲面的传力优势。"],
+    related: ["k15", "k16", "k17"],
+    asks: ["自行车上哪一部分是壳体结构？为什么？", "为什么桁架单元要用三角形而不是四边形？"],
+  },
+  {
+    id: "k15", title: "受力分析：五种基本变形", module: "m3",
+    kw: ["受力", "拉力", "压力", "剪切", "弯曲", "扭转", "内力", "应力", "弯矩", "变形"],
+    def: "构件受外力作用会产生拉伸、压缩、剪切、弯曲和扭转五种基本变形，分析时要先判断变形类型，再看内力与应力。",
+    points: [
+      "拉伸/压缩：力沿轴线作用，如拉索、立柱。",
+      "剪切：一对大小相等、方向相反、作用线相近的力，如剪刀、螺栓连接。",
+      "弯曲：横向力使杆件产生弯曲变形，如横梁、跳板。",
+      "扭转：力矩使构件绕轴旋转，如螺丝刀、传动轴。",
+      "内力随外力变化；应力 = 内力 / 截面面积，是判断强度的关键量。",
+      "弯矩最大处通常最危险，工程上通过加高截面、增设支撑来改善。",
+    ],
+    example: "同样是“压”，细长杆受压会失稳（压杆稳定问题），短粗柱受压才是单纯的压缩——所以要区分变形与失稳。",
+    pitfalls: ["把“受力大”直接等同于“容易坏”，忽略截面形状的作用。", "混淆弯曲与剪切，画错受力图。"],
+    related: ["k14", "k16", "k17"],
+    asks: ["为什么工字钢做成“工”字形而不是矩形？", "悬臂梁的弯矩最大点在哪里？"],
+  },
+  {
+    id: "k16", title: "结构的稳定性", module: "m3",
+    kw: ["稳定性", "重心", "支撑面", "倾倒", "稳度", "三角支撑"],
+    def: "结构的稳定性指结构在荷载作用下维持原有平衡状态的能力，主要取决于重心位置、支撑面大小和结构形状。",
+    points: [
+      "重心越低越稳定：底座加配重、设备下沉安装。",
+      "支撑面越大越稳定：三脚架张开角度、加宽底座。",
+      "结构形状影响稳定：三角形框架不易变形。",
+      "稳定与强度不同：稳定是“不倒”，强度是“不坏”。",
+      "提高稳度的常见做法：加重底部、扩大支撑面、增加辅助支撑。",
+    ],
+    example: "落地扇底盘又大又重，就是为了降低重心、扩大支撑面；而台灯的稳定性靠配重块而不是靠加粗灯杆。",
+    pitfalls: ["把稳定性与强度混为一谈。", "只加重不加宽，忽略支撑面作用。"],
+    related: ["k15", "k17", "k14"],
+    asks: ["为什么“不倒翁”重心很低却依然会晃？", "怎样在不增加质量的前提下提高稳定性？"],
+  },
+  {
+    id: "k17", title: "结构的强度", module: "m3",
+    kw: ["强度", "材料", "截面形状", "连接方式", "许用应力", "安全系数", "刚度"],
+    def: "结构的强度指结构抵抗破坏的能力，取决于材料性能、截面形状、连接方式和构件形状。",
+    points: [
+      "材料：不同材料的抗拉、抗压、抗剪能力差异很大（钢、木、塑料、混凝土）。",
+      "截面形状：同等用料下，把材料放在离中性轴更远处（工字、空心圆管）可大幅提高抗弯能力。",
+      "连接方式：焊接、铆接、螺栓、榫卯、胶接的强度与适用场景不同。",
+      "安全系数：设计承载能力要高于实际最大荷载，留出安全余量。",
+      "强度校核：σ = F/A ≤ [σ]，或按弯矩与截面模量计算。",
+    ],
+    example: "同样重量的两根杆，空心圆管的抗弯能力远高于实心方杆——自行车车架用薄壁管就是这个道理。",
+    pitfalls: ["认为“用料越多越结实”，忽视截面效率。", "忽略连接处是最薄弱环节。"],
+    related: ["k15", "k14"],
+    asks: ["为什么破坏常发生在连接处而不是杆件中部？", "安全系数是不是越大越好？"],
+  },
+  {
+    id: "k18", title: "结构设计的一般步骤", module: "m3",
+    kw: ["结构设计", "结构设计步骤", "案例", "桥梁设计", "受力分析步骤"],
+    def: "结构设计一般按“明确功能与约束 → 选型 → 受力分析 → 构件与连接设计 → 模型试验 → 优化”的路径推进。",
+    points: [
+      "明确功能：承重多少、跨度多大、使用环境如何。",
+      "结构选型：根据跨度与荷载选择实体、框架或壳体，或组合方案。",
+      "受力分析：画受力图，判断各构件的变形类型与危险截面。",
+      "构件设计：确定截面形状与尺寸，选择材料与连接方式。",
+      "模型试验：缩尺加载试验，验证强度与稳定性。",
+      "优化：在安全前提下减重、降本、易加工。",
+    ],
+    example: "设计一座 60cm 跨度的纸桥：选桁架方案 → 计算跨中弯矩 → 上弦受压、下弦受拉 → 用多层纸管做受拉下弦 → 加载试验直至破坏 → 加强节点。",
+    pitfalls: ["不做受力分析就凭直觉定尺寸。", "只关注杆件强度，忽略节点与支座。"],
+    related: ["k15", "k16", "k17", "k10"],
+    asks: ["纸桥的上弦为什么宜做成受压构件？", "缩尺模型的试验结果能直接换算到实物吗？"],
+  },
+  {
+    id: "k19", title: "流程、环节与时序", module: "m4",
+    kw: ["流程", "环节", "时序", "工序", "流程设计", "并行", "串行"],
+    def: "流程是一项活动从开始到结束的完整过程，由若干环节按时序组成；环节是相对独立的阶段，时序是环节的先后顺序。",
+    points: [
+      "环节划分要遵循“相对独立、便于管理、可检验”的原则。",
+      "时序有串行、并行、分支三种基本形式。",
+      "流程设计要考虑：目标、资源、约束、质量与安全。",
+      "同一目标可以有不同流程，流程不同则效率与质量不同。",
+      "流程图的常用符号：矩形表示环节，菱形表示判断，箭头表示时序。",
+    ],
+    example: "“泡茶”可串行为洗杯→烧水→温杯→投茶→冲泡，也可把烧水与洗杯并行，缩短总时长。",
+    pitfalls: ["环节划分过粗或过细，流程失去指导意义。", "忽略并行可能性，总时长被无谓拉长。"],
+    related: ["k20", "k21"],
+    asks: ["你熟悉的一件事，哪些环节可以并行？", "环节划分的粒度由什么决定？"],
+  },
+  {
+    id: "k20", title: "流程的识读与绘制", module: "m4",
+    kw: ["流程图", "识读流程", "绘制流程", "流程框图", "符号"],
+    def: "流程图用规范符号表达环节与时序，识读时要抓住起点、环节序列、判断分支与终点。",
+    points: [
+      "先找起点与终点，再沿箭头顺读，遇到菱形判断要分情况讨论。",
+      "注意并行支路的汇合条件（全部完成还是任一完成）。",
+      "绘制时保持自上而下、自左而右的阅读习惯。",
+      "关键环节可加注时间、责任人、检验标准。",
+    ],
+    example: "“快递签收”流程需在“验货是否完好”处设判断分支：完好则签收，异常则拒收并进入理赔支路。",
+    pitfalls: ["漏画判断分支，流程无法覆盖异常情况。", "箭头方向混乱，出现回路却没有说明。"],
+    related: ["k19", "k21"],
+    asks: ["你的流程图有没有覆盖“失败/异常”分支？", "并行支路汇合时，用“与”还是“或”？"],
+  },
+  {
+    id: "k21", title: "流程的优化", module: "m4",
+    kw: ["流程优化", "优化", "工期", "成本", "质量", "关键路径", "瓶颈"],
+    def: "流程优化是在保证质量与安全的前提下，通过调整环节、时序与资源配置，缩短工期、降低成本或提高质量。",
+    points: [
+      "优化目标通常是多目标的：工期、成本、质量、安全、体验。",
+      "常用手段：合并环节、删除冗余、改串行为并行、引入自动化、设置缓冲。",
+      "识别瓶颈环节：总时长由最慢环节决定（约束理论）。",
+      "关键路径：决定总工期的环节链，优化关键路径才有效。",
+      "优化后要评估副作用：并行可能增加协调成本与风险。",
+    ],
+    example: "学校食堂打饭流程：把“选菜”与“盛饭”改为并行窗口，单个学生等待时间从 5 分钟降到 3 分钟。",
+    pitfalls: ["只压缩环节数量，不考虑质量风险。", "优化非关键路径，总工期毫无变化。"],
+    related: ["k19", "k20"],
+    asks: ["食堂窗口增加一个，为什么总等待时间不一定减半？", "优化流程时，哪些环节绝不能省？"],
+  },
+  {
+    id: "k22", title: "系统的基本特性", module: "m5",
+    kw: ["系统", "整体性", "相关性", "目的性", "环境适应性", "动态性", "系统特性"],
+    def: "系统是由相互联系、相互作用的若干要素组成的具有特定功能的有机整体；具有整体性、相关性、目的性、环境适应性和动态性。",
+    points: [
+      "整体性：整体功能大于部分之和（1+1>2），也可能小于（内耗）。",
+      "相关性：要素之间相互制约，改变一个要素会影响其他要素。",
+      "目的性：系统为特定目标而存在，目标决定结构。",
+      "环境适应性：系统与环境交换物质、能量、信息并随之调整。",
+      "动态性：系统随时间演化，需要持续调节。",
+    ],
+    example: "一个班级是系统：整体性体现在协作学习效果，相关性体现在座位与小组分工的相互影响，环境适应性体现在对课程安排的响应。",
+    pitfalls: ["把“系统”泛化为“一堆东西”，忽略要素间的关联。", "只分析要素，不分析关系与环境。"],
+    related: ["k23", "k24"],
+    asks: ["你的项目里，哪些是要素、哪些是关系、哪些是环境？", "“1+1<2”的内耗是怎么产生的？"],
+  },
+  {
+    id: "k23", title: "系统分析", module: "m5",
+    kw: ["系统分析", "要素分析", "系统框图", "建模", "边界", "环境"],
+    def: "系统分析是明确系统边界与目标，厘清要素、关系与环境，建立模型并预测行为的过程。",
+    points: [
+      "第一步划定系统边界：什么在系统内，什么属于环境。",
+      "明确目标与约束：目标决定评价标准。",
+      "建立结构模型：用框图表达要素与输入—处理—输出关系。",
+      "分析反馈与延迟：系统中的延迟常导致振荡。",
+      "系统分析的结果是方案比较的依据，而非唯一答案。",
+    ],
+    example: "分析“校园雨水收集系统”：边界为屋面—管道—储罐—灌溉；输入是降雨，输出是灌溉用水，环境是蒸发与用水需求。",
+    pitfalls: ["边界划得过大，变量太多无法分析。", "忽略环境输入，模型在真实场景失效。"],
+    related: ["k22", "k24"],
+    asks: ["如果把“学生”也算进设备系统，边界会带来什么麻烦？", "系统中的延迟会造成什么现象？"],
+  },
+  {
+    id: "k24", title: "系统优化", module: "m5",
+    kw: ["系统优化", "多目标", "约束", "木桶效应", "权衡", "整体最优"],
+    def: "系统优化是在约束条件下，通过调整要素与结构，使系统整体功能达到最优的过程，追求整体最优而非局部最优。",
+    points: [
+      "明确约束条件：预算、空间、时间、法规。",
+      "多目标权衡：常用加权、分层或帕累托最优。",
+      "木桶效应：短板决定整体水平，先补短板。",
+      "局部最优可能损害整体：提高某部件性能可能增加成本或故障率。",
+      "优化是迭代过程，需要评价—调整—再评价。",
+    ],
+    example: "校园快递柜选址：既要靠近宿舍（便利），又不能占用消防通道（安全），还要控制布线成本——三者约束下的折中解才是最优。",
+    pitfalls: ["把优化理解为“每个部分都做到最好”。", "忽略约束，方案无法落地。"],
+    related: ["k22", "k23", "k13"],
+    asks: ["“整体最优”与“局部最优”冲突时，你依据什么决策？", "如何把多个目标合成一个可计算的指标？"],
+  },
+  {
+    id: "k25", title: "控制与控制系统", module: "m6",
+    kw: ["控制", "控制系统", "控制器", "执行器", "被控对象", "检测装置", "反馈", "干扰"],
+    def: "控制是按预定目标，通过控制器、执行器作用于被控对象，使其状态按期望变化的过程。",
+    points: [
+      "控制系统的基本组成：控制器、执行器、被控对象、检测装置、比较环节。",
+      "控制量（输入）与被控量（输出）是控制系统的两端。",
+      "干扰是除控制量以外引起被控量变化的因素。",
+      "控制系统的性能指标：稳定性、快速性、准确性。",
+      "按控制方式分开环控制与闭环控制。",
+    ],
+    example: "空调控温：设定 26℃ 为控制量，室温为被控量，压缩机是执行器，温度传感器是检测装置，开门引入的热量是干扰。",
+    pitfalls: ["把“控制”只理解成人工操作，忽略自动控制的结构。", "混淆控制器与执行器。"],
+    related: ["k26", "k27", "k28"],
+    asks: ["空调的“遥控器”属于控制器还是输入装置？", "干扰一定来自系统外部吗？"],
+  },
+  {
+    id: "k26", title: "开环控制与闭环控制", module: "m6",
+    kw: ["开环", "闭环", "反馈控制", "比较", "偏差", "按偏差控制", "闭环控制"],
+    def: "开环控制不检测输出、不构成反馈；闭环控制检测输出并与给定量比较，按偏差进行调节。",
+    points: [
+      "开环：结构简单、成本低、响应快，但抗干扰能力差、精度低。",
+      "闭环：有检测与反馈环节，能自动纠正偏差，精度高但结构复杂、可能振荡。",
+      "判断口诀：看有没有“检测—比较—调节”的回路。",
+      "定时开关属于开环；恒温箱属于闭环。",
+      "闭环不一定优于开环：成本、可靠性、响应速度都要权衡。",
+    ],
+    example: "定时浇水是开环（不管土壤干湿）；土壤湿度传感器控制的滴灌是闭环（干了才浇、湿了停）。",
+    pitfalls: ["看到“自动”就判为闭环。", "忽视闭环系统可能因延迟而振荡。"],
+    related: ["k25", "k27", "k28"],
+    asks: ["红绿灯定时控制属于哪一种？为什么？", "闭环系统为什么会“来回抖”？"],
+  },
+  {
+    id: "k27", title: "控制系统的组成与反馈", module: "m6",
+    kw: ["反馈", "负反馈", "正反馈", "比较环节", "偏差", "给定值", "传感器"],
+    def: "反馈是把输出量的一部分或全部送回输入端并与给定量比较的过程；负反馈减小偏差、稳定系统，正反馈放大偏差。",
+    points: [
+      "负反馈：输出偏大则减小输入，使系统趋于稳定（恒温、恒速）。",
+      "正反馈：输出增大进一步增大输入，导致发散（啸叫、雪崩）。",
+      "比较环节计算偏差 = 给定量 − 反馈量。",
+      "反馈必须有检测装置，否则无法闭环。",
+      "反馈深度影响响应速度与超调量。",
+    ],
+    example: "恒温箱温度低于设定值时，比较环节得到正偏差，控制器加大加热功率——这是负反馈在起作用。",
+    pitfalls: ["认为所有反馈都是好事，忽略正反馈的危险。", "把反馈与干扰混为一谈。"],
+    related: ["k26", "k28"],
+    asks: ["麦克风啸叫属于哪种反馈？", "没有传感器还能实现闭环吗？"],
+  },
+  {
+    id: "k28", title: "传感器与执行器", module: "m6",
+    kw: ["传感器", "光敏", "热敏", "湿敏", "红外", "超声波", "电机", "舵机", "继电器", "执行器"],
+    def: "传感器把物理量转换为电信号，是控制系统的“感官”；执行器把控制信号转换为动作，是控制系统的“手脚”。",
+    points: [
+      "常见传感器：光敏电阻（光照）、热敏电阻（温度）、湿敏（湿度）、红外（人体/距离）、超声波（测距）、霍尔（磁场）。",
+      "常见执行器：直流电机、步进电机、舵机、继电器、电磁阀、LED、蜂鸣器。",
+      "选型依据：量程、精度、响应速度、供电、成本、环境适应性。",
+      "信号调理必不可少：分压、放大、滤波、模数转换。",
+      "继电器用于弱电控制强电，注意触点容量与续流保护。",
+    ],
+    example: "智能垃圾桶：超声波测距（检测靠近）→ 单片机判断 → 舵机转动开盖 → 延时后闭合。",
+    pitfalls: ["只选贵的传感器，忽略量程匹配。", "忘记加续流二极管导致继电器或三极管损坏。"],
+    related: ["k25", "k29"],
+    asks: ["为什么光敏电阻要接成分压电路？", "舵机与直流电机在控制上有何不同？"],
+  },
+  {
+    id: "k29", title: "简单控制系统的设计与调试", module: "m6",
+    kw: ["控制系统设计", "调试", "阈值", "滞回", "PID", "Arduino", "开环调试", "闭环调试"],
+    def: "简单控制系统设计包括需求分析、方案选型、硬件搭建、程序编写、参数整定与联调测试六个环节。",
+    points: [
+      "明确被控量与控制精度，确定传感器与执行器。",
+      "画控制方框图，标出给定量、偏差、控制量、被控量、干扰。",
+      "设置阈值与滞回区间，避免执行器频繁启停（如 25—27℃ 区间控制）。",
+      "PID 思想：比例看当前偏差、积分消除稳态误差、微分抑制超调。",
+      "调试顺序：先开环验证执行器 → 再闭环整定参数 → 最后做干扰测试。",
+    ],
+    example: "恒温饮水机：设定 55℃，水温低于 53℃ 加热，高于 57℃ 停止，形成 4℃ 滞回，避免继电器频繁动作。",
+    pitfalls: ["没有滞回，执行器反复启停而损坏。", "先调参数后查接线，故障定位混乱。"],
+    related: ["k27", "k28", "k26"],
+    asks: ["为什么要先做开环调试？", "积分项太强会出现什么现象？"],
+  },
+  {
+    id: "k30", title: "通用技术学科核心素养", module: "m7",
+    kw: ["核心素养", "技术意识", "工程思维", "创新设计", "图样表达", "物化能力", "课程标准"],
+    def: "通用技术学科核心素养包括技术意识、工程思维、创新设计、图样表达和物化能力五个方面。",
+    points: [
+      "技术意识：对技术现象敏感，能理解技术与人、社会、自然的关系并作出价值判断。",
+      "工程思维：以系统分析的方法认识结构、流程、系统与控制，进行权衡与决策。",
+      "创新设计：发现真实问题，运用设计方法与创新技法提出多方案。",
+      "图样表达：用技术语言准确表达设计意图，能识读与绘制图样。",
+      "物化能力：选用材料与工具，把方案做成模型或原型并测试改进。",
+      "五素养不是五门课，而是在项目中综合体现。",
+    ],
+    example: "一个“校园智能分类垃圾桶”项目，同时考查技术意识（环保价值）、工程思维（结构/流程/控制）、创新设计（方案多样）、图样表达（图纸）、物化能力（实物制作）。",
+    pitfalls: ["把素养当知识点背诵，不与项目任务对应。", "只重视物化，忽略价值判断与思维过程。"],
+    related: ["k31", "k32"],
+    asks: ["你的项目最能体现哪一项素养，最弱的是哪一项？", "素养可以像分数一样被打分吗？"],
+  },
+  {
+    id: "k31", title: "大单元与项目式学习", module: "m7",
+    kw: ["大单元", "项目式学习", "PBL", "大概念", "真实情境", "驱动性问题", "单元设计"],
+    def: "大单元教学以大概念统整内容，用真实情境中的驱动性问题组织学习任务；项目式学习以完成作品为主线串联知识与能力。",
+    points: [
+      "大概念是能迁移的核心观念，如“结构决定功能”“系统整体大于部分之和”。",
+      "驱动性问题要真实、开放、可探究，如“如何为校园设计一座可承重的人行小桥”。",
+      "项目式学习的基本流程：入项—知识与能力建构—探索与制作—出项与评价。",
+      "任务要拆解为可交付的阶段成果（草图、模型、测试报告）。",
+      "教师角色从讲授者转为设计者、支持者与评价者。",
+    ],
+    example: "“校园无障碍通行改造”项目：调研→测绘→方案→模型→试用→汇报，串联结构、流程、系统与人机工程知识。",
+    pitfalls: ["项目很热闹但知识未落地，缺少概念建构环节。", "驱动性问题过于封闭，只需查资料即可回答。"],
+    related: ["k30", "k32"],
+    asks: ["你的驱动性问题能否支撑 3 周以上的探究？", "项目中的“知识建构”环节如何保证不被活动挤占？"],
+  },
+  {
+    id: "k32", title: "表现性评价与评价量规", module: "m7",
+    kw: ["表现性评价", "量规", "过程性评价", "自评", "互评", "档案袋", "评价改革"],
+    def: "表现性评价让学生在真实任务中展示知识与能力，用量规对过程与作品进行分级描述，强调证据与反馈。",
+    points: [
+      "评价目标对应核心素养，避免只评“作品好不好看”。",
+      "量规包含维度、水平描述与分值，水平描述要可观察。",
+      "多元主体：自评、互评、师评、用户反馈。",
+      "过程性证据：设计日志、草图迭代、试验数据、反思报告。",
+      "评价结果要能指导下一步学习，而非仅给分数。",
+    ],
+    example: "“结构模型”量规：受力合理性（能否说明危险截面）、稳定性（加载测试）、工艺质量（连接与表面）、表达（图纸规范）四维各 5 级。",
+    pitfalls: ["量规只有分数没有行为描述，评分主观。", "只评最终作品，忽略迭代过程。"],
+    related: ["k13", "k30", "k31"],
+    asks: ["如何让量规的水平描述“可观察”？", "过程性证据太多，如何筛选关键证据？"],
+  },
+];
+
+/* ---------- 题库 ---------- */
+const QUIZ = [
+  { id: "q1", module: "m1", type: "single", tag: "概念混淆",
+    q: "下列关于技术的说法，正确的是（　）",
+    options: ["技术就是科学理论的直接应用", "技术只包括有形的工具和设备", "技术是人类改造世界的手段、方法与工具的总和", "技术一旦发明就必然造福人类"],
+    answer: 2, explain: "技术既包含实物工具，也包含工艺、规范、图纸等知识形态；技术具有两面性，不等于科学的应用，也不必然造福人类。", kp: "k1" },
+  { id: "q2", module: "m1", type: "single", tag: "知识盲区",
+    q: "塑料袋轻便耐用却造成“白色污染”，这一现象主要体现技术的（　）",
+    options: ["目的性", "综合性", "两面性", "实践性"],
+    answer: 2, explain: "同一技术在带来便利的同时产生负面后果，是技术两面性的典型表现。", kp: "k2" },
+  { id: "q3", module: "m1", type: "single", tag: "知识盲区",
+    q: "我国专利法规定的专利类型不包括（　）",
+    options: ["发明专利", "实用新型专利", "外观设计专利", "商业秘密专利"],
+    answer: 3, explain: "我国专利分为发明、实用新型、外观设计三类；商业秘密受反不正当竞争法保护，不属于专利。", kp: "k1" },
+  { id: "q4", module: "m2", type: "single", tag: "审题失误",
+    q: "设计的一般过程中，紧接“制定设计方案”之后的环节是（　）",
+    options: ["发现与明确问题", "制作模型或原型", "测试、评估及优化", "产品的使用与维护"],
+    answer: 1, explain: "五阶段顺序：发现与明确问题→制定设计方案→制作模型或原型→测试评估及优化→使用与维护。", kp: "k6" },
+  { id: "q5", module: "m2", type: "single", tag: "概念混淆",
+    q: "用计算机仿真软件检验桥梁在超载情况下的变形，属于（　）",
+    options: ["优选试验", "模拟试验", "虚拟试验", "破坏性试验"],
+    answer: 2, explain: "在计算机中借助模型进行试验属于虚拟试验；模拟试验是用实物模型模拟真实工况。", kp: "k10" },
+  { id: "q6", module: "m2", type: "single", tag: "概念混淆",
+    q: "三视图的投影规律是（　）",
+    options: ["长对正、高平齐、宽相等", "长相等、高对正、宽平齐", "长平齐、高相等、宽对正", "长对正、高相等、宽平齐"],
+    answer: 0, explain: "主视图与俯视图长对正，主视图与左视图高平齐，俯视图与左视图宽相等。", kp: "k11" },
+  { id: "q7", module: "m2", type: "single", tag: "知识盲区",
+    q: "形态分析法的主要思路是（　）",
+    options: ["延迟评判、追求数量", "把问题分解为要素并组合各要素的备选形态", "从七个角度连续追问", "用矛盾矩阵查找发明原理"],
+    answer: 1, explain: "形态分析法先分解要素、再列举形态、最后组合筛选；A 是头脑风暴，C 是 5W2H，D 是 TRIZ。", kp: "k9" },
+  { id: "q8", module: "m2", type: "judge", tag: "审题失误",
+    q: "判断：设计评价只在方案完成后进行一次即可。",
+    options: ["正确", "错误"],
+    answer: 1, explain: "评价贯穿设计全过程，是迭代优化的依据，而非一次性环节。", kp: "k13" },
+  { id: "q9", module: "m3", type: "single", tag: "概念混淆",
+    q: "头盔在受到冲击时能把集中力分散到整个曲面，其结构类型属于（　）",
+    options: ["实体结构", "框架结构", "壳体结构", "桁架结构"],
+    answer: 2, explain: "以曲面薄壁承受并分散外力的结构为壳体结构；桁架属于框架结构的一种。", kp: "k14" },
+  { id: "q10", module: "m3", type: "single", tag: "知识盲区",
+    q: "下列关于结构稳定性的说法，正确的是（　）",
+    options: ["重心越高越稳定", "支撑面越大越稳定", "稳定性与强度是同一概念", "增加质量一定能提高稳定性"],
+    answer: 1, explain: "稳定性取决于重心高低、支撑面大小和结构形状；稳定性（不倒）与强度（不坏）不同，单纯增重不一定有效。", kp: "k16" },
+  { id: "q11", module: "m3", type: "single", tag: "知识盲区",
+    q: "同等用料条件下，把材料尽量布置在离中性轴较远处，主要是为了提高构件的（　）",
+    options: ["抗压强度", "抗弯能力", "抗剪能力", "耐腐蚀性"],
+    answer: 1, explain: "截面惯性矩随材料远离中性轴而增大，抗弯能力显著提高，工字钢、薄壁圆管即基于此。", kp: "k17" },
+  { id: "q12", module: "m3", type: "single", tag: "概念混淆",
+    q: "剪刀剪纸张时，纸张主要承受（　）",
+    options: ["拉力", "压力", "剪切力", "扭转力"],
+    answer: 2, explain: "一对大小相等、方向相反、作用线相近的力使材料沿截面错动，属于剪切。", kp: "k15" },
+  { id: "q13", module: "m3", type: "judge", tag: "审题失误",
+    q: "判断：桁架结构中基本单元采用三角形，是因为三角形具有几何稳定性。",
+    options: ["正确", "错误"],
+    answer: 0, explain: "三角形受外力时形状不变，四边形易变形，因此桁架以三角形为基本单元。", kp: "k14" },
+  { id: "q14", module: "m4", type: "single", tag: "概念混淆",
+    q: "流程中“环节”与“时序”的关系是（　）",
+    options: ["环节是时间的先后，时序是阶段划分", "环节是相对独立的阶段，时序是环节的先后顺序", "二者含义完全相同", "时序只能串行，不能并行"],
+    answer: 1, explain: "环节是过程划分出的相对独立阶段，时序是环节发生的先后关系，可分串行、并行与分支。", kp: "k19" },
+  { id: "q15", module: "m4", type: "single", tag: "知识盲区",
+    q: "某流程总工期由最慢的环节决定，这一环节通常称为（　）",
+    options: ["关键路径", "瓶颈环节", "冗余环节", "并行环节"],
+    answer: 1, explain: "约束理论认为系统产出由瓶颈决定；关键路径是决定总工期的环节链，二者相关但概念不同。", kp: "k21" },
+  { id: "q16", module: "m4", type: "judge", tag: "审题失误",
+    q: "判断：流程优化就是尽量减少环节数量。",
+    options: ["正确", "错误"],
+    answer: 1, explain: "优化目标是工期、成本、质量、安全等多目标的平衡，盲目删减环节可能带来质量与安全风险。", kp: "k21" },
+  { id: "q17", module: "m5", type: "single", tag: "概念混淆",
+    q: "“三个和尚没水喝”主要说明系统（　）",
+    options: ["具有整体性，结构不合理时整体功能小于部分之和", "具有动态性", "具有环境适应性", "具有目的性"],
+    answer: 0, explain: "要素相同而结构不同，整体功能可能小于部分之和，体现系统的整体性与结构的重要性。", kp: "k22" },
+  { id: "q18", module: "m5", type: "single", tag: "知识盲区",
+    q: "系统分析首先应当（　）",
+    options: ["建立数学模型", "划定系统边界、明确目标", "选择最优方案", "计算成本"],
+    answer: 1, explain: "系统分析从界定边界与目标开始，边界不清则变量无法控制、模型失去意义。", kp: "k23" },
+  { id: "q19", module: "m5", type: "single", tag: "审题失误",
+    q: "系统优化追求的是（　）",
+    options: ["每个要素都达到最优", "整体功能最优", "成本最低", "结构最复杂"],
+    answer: 1, explain: "系统优化在约束条件下追求整体最优，局部最优之和未必等于整体最优。", kp: "k24" },
+  { id: "q20", module: "m6", type: "single", tag: "概念混淆",
+    q: "下列属于闭环控制的是（　）",
+    options: ["定时开关的路灯", "按设定时间浇水的喷灌", "恒温箱的温度控制", "手动开关的电风扇"],
+    answer: 2, explain: "恒温箱检测实际温度并与设定值比较后调节，构成闭环；其余均为开环或人工控制。", kp: "k26" },
+  { id: "q21", module: "m6", type: "single", tag: "知识盲区",
+    q: "在空调控温系统中，温度传感器属于（　）",
+    options: ["控制器", "执行器", "检测装置", "被控对象"],
+    answer: 2, explain: "传感器检测被控量（室温）并反馈给控制器，属于检测装置；压缩机是执行器，房间是被控对象。", kp: "k25" },
+  { id: "q22", module: "m6", type: "single", tag: "知识盲区",
+    q: "恒温控制中设置 4℃ 的滞回区间，主要目的是（　）",
+    options: ["提高控制精度", "避免执行器频繁启停", "缩短响应时间", "降低传感器成本"],
+    answer: 1, explain: "滞回区间使控制动作具有缓冲，防止在阈值附近反复通断而损坏执行器。", kp: "k29" },
+  { id: "q23", module: "m6", type: "judge", tag: "概念混淆",
+    q: "判断：开环控制结构简单、抗干扰能力强。",
+    options: ["正确", "错误"],
+    answer: 1, explain: "开环控制不检测输出，无法纠正干扰造成的偏差，抗干扰能力弱；闭环控制才有纠偏能力。", kp: "k26" },
+  { id: "q24", module: "m7", type: "single", tag: "知识盲区",
+    q: "通用技术学科核心素养不包括（　）",
+    options: ["技术意识", "工程思维", "图样表达", "计算思维"],
+    answer: 3, explain: "五素养为技术意识、工程思维、创新设计、图样表达、物化能力；计算思维属于信息技术学科。", kp: "k30" },
+  { id: "q25", module: "m7", type: "single", tag: "审题失误",
+    q: "表现性评价最突出的特点是（　）",
+    options: ["以纸笔测验为主", "在真实任务中依据量规评价过程与作品", "只评价最终作品", "只由教师评分"],
+    answer: 1, explain: "表现性评价强调真实任务、证据与量规，主体多元，关注过程而不只是结果。", kp: "k32" },
+  { id: "q26", module: "m7", type: "judge", tag: "概念混淆",
+    q: "判断：项目式学习应以真实情境中的驱动性问题统整知识与能力。",
+    options: ["正确", "错误"],
+    answer: 0, explain: "驱动性问题是项目式学习的组织核心，须真实、开放、可探究，并支撑概念建构。", kp: "k31" },
+];
+
+/* ---------- 意图词典 ---------- */
+const INTENTS = [
+  { id: "greet", kw: ["你好", "您好", "嗨", "hello", "hi", "在吗", "早上好", "晚上好"], reply: "greet" },
+  { id: "identity", kw: ["你是谁", "你叫什么", "介绍一下你", "你能做什么", "你的功能", "怎么用", "使用说明"], reply: "identity" },
+  { id: "plan", kw: ["怎么学", "学习计划", "复习", "备考", "安排", "学习路径", "从哪开始", "顺序"], reply: "plan" },
+  { id: "test", kw: ["出题", "测验", "考我", "练一练", "刷题", "自测", "题目"], reply: "test" },
+  { id: "project", kw: ["项目", "作品", "做一个", "设计一个", "方案", "任务书", "评比", "参赛"], reply: "project" },
+  { id: "compare", kw: ["区别", "不同", "对比", "异同", "差别"], reply: "compare" },
+  { id: "why", kw: ["为什么", "原因", "原理"], reply: "why" },
+  { id: "howto", kw: ["怎么做", "如何", "步骤", "方法", "流程是什么", "怎样"], reply: "howto" },
+];
+
+
+</script>
+<script>
+/* ============================================================
+ * 匠心 · 通用技术概论智能学伴 —— 应用逻辑
+ * 结构：状态与存储 → 检索引擎 → 教学策略应答 → 对话 → 练测 → 画像
+ * ============================================================ */
+
+/* ---------------- 1. 状态与存储 ---------------- */
+const STORE_KEY = "jiangxin_state_v1";
+
+const DEFAULT_STATE = {
+  asks: 0,
+  quiz: 0,
+  correct: 0,
+  wrong: [],
+  seen: {},          // moduleId -> {a: 答题数, c: 答对数}
+  comp: { c1: 32, c2: 32, c3: 30, c4: 30, c5: 28 },
+  days: [],
+  log: [],           // {t, q}
+};
+
+let state = load();
+let mode = "guide";  // guide | direct
+let inlineQuiz = null;
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    const s = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), JSON.parse(raw));
+    return s;
+  } catch (e) {
+    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function touchDay() {
+  const t = today();
+  if (!state.days.includes(t)) { state.days.push(t); save(); }
+}
+
+/* ---------------- 2. 基础工具 ---------------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const kbById = id => KB.find(k => k.id === id);
+const modById = id => MODULES.find(m => m.id === id);
+const quizById = id => QUIZ.find(q => q.id === id);
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+function norm(s) {
+  return String(s).toLowerCase()
+    .replace(/[\s，。？！、；：“”‘’（）()《》【】,.?!;:""''\-—_/\\]/g, "");
+}
+
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+/* ---------------- 3. 检索引擎（轻量 RAG） ---------------- */
+const INTENT_RULES = [
+  { id: "greet", kw: ["你好", "您好", "嗨", "hello", "hi", "在吗", "早上好", "晚上好", "在么"] },
+  { id: "identity", kw: ["你是谁", "你叫什么", "介绍一下你", "你能做什么", "你的功能", "怎么用", "使用说明", "你能干什么"] },
+  { id: "plan", kw: ["怎么学", "学习计划", "复习计划", "备考", "学习路径", "从哪开始", "学习顺序", "安排复习", "怎么安排"] },
+  { id: "test", kw: ["出题", "测验", "考我", "考考我", "练一练", "刷题", "自测", "来一题", "来道题", "出一道", "出个题", "做题"] },
+  { id: "project", kw: ["项目", "作品", "做一个", "设计一个", "设计个", "方案设计", "任务书", "参赛", "怎么开始"] },
+];
+
+function detectIntent(text) {
+  const t = norm(text);
+  for (const r of INTENT_RULES) {
+    if (r.kw.some(k => t.includes(norm(k)))) return r.id;
+  }
+  return null;
+}
+
+/** 知识点检索：关键词命中 + 标题命中 + 字面相似度 */
+function retrieve(text, topN = 3) {
+  const t = norm(text);
+  const grams = [];
+  for (let i = 0; i < t.length - 1; i++) grams.push(t.slice(i, i + 2));
+
+  const scored = KB.map(k => {
+    let s = 0;
+    k.kw.forEach(w => { if (t.includes(norm(w))) s += 4 + Math.min(norm(w).length, 8) * 0.5; });
+    if (t.includes(norm(k.title))) s += 7;
+    // 标题字面覆盖
+    const title = norm(k.title);
+    let hit = 0;
+    for (const g of grams) if (title.includes(g)) hit++;
+    s += hit * 0.9;
+    // 正文弱匹配
+    const body = norm(k.title + k.def + k.points.join("") + k.kw.join(""));
+    let bh = 0;
+    for (const g of grams) if (body.includes(g)) bh++;
+    s += bh * 0.12;
+    return { k, s };
+  }).sort((a, b) => b.s - a.s);
+
+  return scored.filter(x => x.s > 1.2).slice(0, topN);
+}
+
+/** 近似“两个概念做对比”的判断：以“和/与/跟”为界，两侧各匹配一个知识点 */
+function pairRetrieve(text) {
+  const t = norm(text);
+  if (!/(区别|不同|异同|对比|区分|分别|差别)/.test(t)) return null;
+  const parts = t.split(/和|与|跟|及|vs|对比|相比较|相比/);
+  if (parts.length < 2) return null;
+
+  const pick = (part) => {
+    let best = null, bestS = 0;
+    KB.forEach(k => {
+      let s = 0;
+      k.kw.forEach(w => { if (part.includes(norm(w))) s += norm(w).length; });
+      if (part.includes(norm(k.title)) || norm(k.title).includes(part)) s += 6;
+      if (s > bestS) { bestS = s; best = k; }
+    });
+    return bestS >= 2 ? best : null;
+  };
+
+  const ka = pick(parts[0]), kb = pick(parts[1]);
+  if (ka && kb && ka.id !== kb.id) return [ka, kb];
+  return null;
+}
+
+/* ---------------- 4. 教学策略：生成应答 ---------------- */
+const TAG = k => `<span class="modchip">${modById(k.module).name}</span>`;
+
+function answerOfKnowledge(k, opts = {}) {
+  const guide = mode === "guide" && !opts.force;
+  const ask = k.asks && k.asks.length ? k.asks[0] : "你能用自己的话复述一遍吗？";
+  const otherAsks = (k.asks || []).slice(1);
+
+  let html = `<h4>${esc(k.title)}${TAG(k)}</h4>`;
+
+  if (guide) {
+    html += `<p>先别急着背结论。你可以想一想：<span class="hl">${esc(ask)}</span></p>`;
+    html += `<p>带着这个问题来看——</p>`;
+  }
+
+  html += `<p><span class="hl">一句话说清：</span>${esc(k.def)}</p>`;
+
+  if (!guide) {
+    html += `<ol>${k.points.map(p => `<li>${esc(p)}</li>`).join("")}</ol>`;
+    if (k.example) html += `<div class="eg"><b>情境举例：</b>${esc(k.example)}</div>`;
+  } else {
+    html += `<ol>${k.points.slice(0, 2).map(p => `<li>${esc(p)}</li>`).join("")}</ol>`;
+    html += `<p style="font-size:12.5px;color:#6b7690">其余 ${Math.max(k.points.length - 2, 0)} 条要点，你可以先自己补一补，再让我展开。</p>`;
+  }
+
+  if (k.pitfalls && k.pitfalls.length) {
+    html += `<div class="warnbox"><b>⚠ 常见误区：</b>${esc(k.pitfalls[0])}</div>`;
+  }
+
+  const chips = [...otherAsks];
+  if (guide && k.points.length > 2) chips.unshift(`展开「${k.title}」的全部要点`);
+  if (k.example) chips.push("再举一个生活中的例子");
+  (k.related || []).slice(0, 1).forEach(id => {
+    const r = kbById(id);
+    if (r) chips.push(`${r.title}和它有什么联系？`);
+  });
+
+  html += chipBlock(chips);
+  return { html, source: k };
+}
+
+function chipBlock(chips) {
+  if (!chips || !chips.length) return "";
+  return `<div class="askmore"><div class="askmore-label">继续追问</div><div class="askchips">${
+    chips.map(c => `<button class="askchip" data-ask="${esc(c)}">${esc(c)}</button>`).join("")
+  }</div></div>`;
+}
+
+function answerOfCompare(ka, kb) {
+  // 去掉两个标题的公共前缀，避免“结构的稳定性 与 结构的强度”这样的重复
+  let ta = ka.title, tb = kb.title, n = 0;
+  while (n < Math.min(ta.length, tb.length) - 2 && ta[n] === tb[n]) n++;
+  const label = (s) => (n >= 2 ? s.slice(n) : s);
+  const rows = [
+    ["核心指向", ka.def, kb.def],
+    ["关键要点", ka.points[0], kb.points[0]],
+    ["再看一层", ka.points[1] || "—", kb.points[1] || "—"],
+    ["典型情境", ka.example, kb.example],
+  ];
+  let html = `<h4>${esc(label(ta))} 与 ${esc(label(tb))} 的区别${TAG(ka)}</h4>`;
+  html += `<p>这两个概念最容易在选择题里被“调包”，抓住下表的对照关系就不容易混。</p>`;
+  html += `<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0 4px">
+    <tr style="background:#f4f6fb">
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e6e9f2;width:78px">维度</th>
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e6e9f2">${esc(label(ta))}</th>
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e6e9f2">${esc(label(tb))}</th>
+    </tr>
+    ${rows.map(r => `<tr>
+      <td style="padding:8px 10px;border:1px solid #e6e9f2;color:#6b7690">${esc(r[0])}</td>
+      <td style="padding:8px 10px;border:1px solid #e6e9f2">${esc(r[1])}</td>
+      <td style="padding:8px 10px;border:1px solid #e6e9f2">${esc(r[2])}</td>
+    </tr>`).join("")}
+  </table>`;
+  const pit = kb.pitfalls && kb.pitfalls[0] ? kb.pitfalls[0] : (ka.pitfalls || [])[0];
+  if (pit) html += `<div class="warnbox"><b>⚠ 命题人常在这里设坑：</b>${esc(pit)}</div>`;
+  html += chipBlock([
+    `给我一道考${ka.title}的题`,
+    `给我一道考${kb.title}的题`,
+    `${ka.title}在真实设计中怎么用？`,
+  ]);
+  return { html, source: ka };
+}
+
+function answerOfPlan() {
+  const weak = MODULES
+    .map(m => ({ m, r: rateOf(m.id) }))
+    .filter(x => x.r === null)
+    .map(x => x.m);
+  const list = (weak.length ? weak : MODULES.slice(0, 3));
+  let html = `<h4>四周学习路径：把七个模块串成一条线${TAG(kbById("k6"))}</h4>`;
+  html += `<p>通用技术概论的复习最忌“按章节平推”。建议按“认识—设计—四个分析维度—素养综合”的次序走，每周一个闭环：读概念 → 做一题 → 说一遍 → 改一次方案。</p>`;
+  html += `<ol>
+    <li><b>第 1 周｜技术之本与设计之道</b>：技术本质与特征、设计的一般过程与七原则。任务：为身边一件用品写一页设计任务书。</li>
+    <li><b>第 2 周｜结构之力</b>：结构类型、受力分析、稳定性与强度。任务：做一座 60cm 纸桥并通过加载试验。</li>
+    <li><b>第 3 周｜流程之序与系统之维</b>：环节与时序、流程优化、系统特性与分析。任务：优化一条校园流程并画出流程图。</li>
+    <li><b>第 4 周｜控制之智与素养之核</b>：开环/闭环、反馈与传感器；五素养与表现性评价。任务：搭一个带滞回的温度或光照控制装置。</li>
+  </ol>`;
+  html += `<p>每周固定留 20 分钟做“错题复盘”：不只记正确答案，要写下<b>当时的错误判断依据</b>——错因比答案更值钱。</p>`;
+  if (list.length) {
+    html += `<p>根据你目前的记录，建议优先补：<span class="hl">${list.map(m => m.name + "（" + m.sub + "）").join("、")}</span>。</p>`;
+  }
+  html += chipBlock(["帮我从第一个模块开始讲", "给我一组综合练习", "我的薄弱点在哪里？"]);
+  return { html, source: kbById("k6") };
+}
+
+function answerOfProject(text) {
+  const topic = text.replace(/[?？。！!]/g, "").replace(/我想做|想做|帮我|怎么开始|如何设计|设计一个|做一个|设计个/g, "").trim() || "你的项目";
+  let html = `<h4>项目陪跑：从驱动性问题到可测试的原型${TAG(kbById("k31"))}</h4>`;
+  html += `<p>你要做的「${esc(topic)}」，先按五步走，每一步都有可交付物。我们可以逐步来，你完成一步，我再给下一步的反馈。</p>`;
+  html += `<ol>
+    <li><b>第 1 步 · 把问题说清楚（产出：设计任务书）</b><br>为谁解决什么痛点？在什么场景用？三条硬约束（尺寸/成本/安全）分别是什么？</li>
+    <li><b>第 2 步 · 发散再收敛（产出：3 个方案草图）</b><br>先用形态分析法把方案拆成“结构 × 驱动 × 交互”三要素组合，再用加权评分收敛到 1 个主方案。</li>
+    <li><b>第 3 步 · 先做能坏的模型（产出：纸板/木条草模）</b><br>先验证结构与尺寸，不要一上手做 1:1 实物。</li>
+    <li><b>第 4 步 · 用数据说话（产出：试验记录表）</b><br>设定 2—3 个可测指标（如承重、响应时间、误动作率），做强化试验并记录破坏位置。</li>
+    <li><b>第 5 步 · 迭代与表达（产出：改进说明 + 三视图）</b><br>针对最弱指标做定点改进，用三视图与爆炸图把方案讲清楚。</li>
+  </ol>`;
+  html += `<div class="eg"><b>先回答我一个问题：</b>这个项目里，最可能“卡住”的是结构、控制，还是成本？告诉我，我们就从那一块深挖。</div>`;
+  html += chipBlock(["形态分析法怎么用在项目里？", "技术试验方案怎么写？", "设计任务书要包含哪些内容？"]);
+  return { html, source: kbById("k31") };
+}
+
+function answerOfTest() {
+  const pend = QUIZ.filter(q => !state.wrong.includes(q.id));
+  const q = pend[Math.floor(Math.random() * pend.length)] || QUIZ[Math.floor(Math.random() * QUIZ.length)];
+  return answerInlineQuiz(q);
+}
+
+function answerInlineQuiz(q) {
+  inlineQuiz = q.id;
+  const opts = q.options.map((o, i) => {
+    const key = q.type === "judge" ? (i === 0 ? "T" : "F") : "ABCD"[i];
+    return `<button class="askchip" style="border-radius:10px;padding:8px 13px;font-size:12.5px" data-opt="${i}">${key}. ${esc(o)}</button>`;
+  }).join("");
+  const html = `<h4>随堂一练${TAG(kbById(q.kp))}</h4>
+    <p>${esc(q.q)}</p>
+    <div class="askchips" id="inlineOpts">${opts}</div>
+    <div id="inlineFb"></div>`;
+  return { html, source: kbById(q.kp), inline: q.id };
+}
+
+function fallbackAnswer(text) {
+  const top = retrieve(text, 3);
+  let html = `<h4>这个问题我还没有十足的把握${TAG(kbById("k30"))}</h4>`;
+  html += `<p>课程知识库里暂时没有与「${esc(text.slice(0, 22))}」直接对应的条目。为了不给你编一个“看起来很对”的答案，我先说说我能确定的部分：</p>`;
+  if (top.length) {
+    html += `<p>它可能与下面这些知识点相关：</p><ul>${top.map(x => `<li><b>${esc(x.k.title)}</b>（${modById(x.k.module).name}）：${esc(x.k.def)}</li>`).join("")}</ul>`;
+  }
+  html += `<div class="eg"><b>建议你把问题再具体一点：</b>是想要“概念解释”“方法步骤”“例题讲解”，还是“项目建议”？也可以直接点下面的知识点。</div>`;
+  html += chipBlock([
+    ...top.map(x => `解释一下「${x.k.title}」`),
+    "给我出一道题",
+    "我该怎么安排复习？",
+  ]);
+  return { html, source: null };
+}
+
+function identityAnswer() {
+  return { html:
+    `<h4>我是「匠心」，你的通用技术学习伙伴${TAG(kbById("k30"))}</h4>
+     <p>我不是“搜答案的机器”，而是按教学设计工作的学伴，主要有四种工作方式：</p>
+     <ol>
+       <li><b>概念讲解</b>：先给一句话定义，再拆要点、举情境例子、点出常见误区，并标注知识依据。</li>
+       <li><b>苏格拉底追问</b>：引导模式下先反问你一句，把你的前概念“逼”出来，再补讲。</li>
+       <li><b>项目陪跑</b>：把一个模糊的想法拆成“任务书—方案—模型—试验—表达”五步，逐步给反馈。</li>
+       <li><b>练测诊断</b>：按模块出题，答错不只给答案，还给错因标签与复习路径。</li>
+     </ol>
+     <p>我最在意的一件事：<span class="hl">每个结论都能追溯到课程知识库的哪一条</span>。你可以在回答下方点开“依据”查看原文。</p>
+     ${chipBlock(["技术的本质是什么？", "稳定性与强度有什么区别？", "我想做一个校园智能分类垃圾桶", "给我出一道题"])}`,
+    source: null };
+}
+
+function greetAnswer() {
+  return { html:
+    `<h4>你好，我在。${TAG(kbById("k6"))}</h4>
+     <p>今天想从哪儿开始？如果你还没想好，可以试试这三种打开方式：</p>
+     <ul>
+       <li>丢一个“卡住”的概念给我，比如“流程优化到底优化什么”；</li>
+       <li>说一个想做的作品，我陪你把它拆成可执行的五步；</li>
+       <li>让我出一题，用错题定位你的薄弱模块。</li>
+     </ul>
+     ${chipBlock(["技术的特征有哪些？", "开环和闭环怎么区分？", "给我出一道题"])}`,
+    source: null };
+}
+
+/* ---------------- 5. 对话渲染 ---------------- */
+const chatScroll = $("#chatScroll");
+
+function scrollBottom() {
+  chatScroll.scrollTop = chatScroll.scrollHeight;
+}
+
+function addUserMsg(text) {
+  const div = document.createElement("div");
+  div.className = "msg user";
+  div.innerHTML = `<div class="msg-avatar">我</div>
+    <div class="msg-body"><div class="msg-meta"><span>${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}</span></div>
+    <div class="bubble">${esc(text)}</div></div>`;
+  chatScroll.appendChild(div);
+  scrollBottom();
+}
+
+async function addBotMsg(payload, delay = 520) {
+  const div = document.createElement("div");
+  div.className = "msg bot";
+  div.innerHTML = `<div class="msg-avatar">匠</div>
+    <div class="msg-body">
+      <div class="msg-meta"><b>匠心</b><span>学伴 · 通用技术概论</span></div>
+      <div class="bubble"><div class="typing"><i></i><i></i><i></i></div></div>
+    </div>`;
+  chatScroll.appendChild(div);
+  scrollBottom();
+
+  await new Promise(r => setTimeout(r, delay));
+  const bubble = $(".bubble", div);
+  bubble.innerHTML = payload.html;
+
+  if (payload.source) {
+    const tools = document.createElement("div");
+    tools.className = "msg-tools";
+    tools.innerHTML = `<button class="srcchip" data-src="${payload.source.id}">依据：${esc(payload.source.title)}</button>
+      <button class="tool" data-act="copy">复制</button>
+      <button class="tool" data-act="good">有帮助</button>`;
+    $(".msg-body", div).appendChild(tools);
+  }
+  scrollBottom();
+}
+
+function ask(text, opts = {}) {
+  if (!text.trim()) return;
+  if (!opts.silent) {
+    const w = $("#welcome");
+    if (w) w.remove();
+  }
+  addUserMsg(text);
+  state.asks++;
+  state.log.push({ t: Date.now(), q: text.slice(0, 40) });
+  if (state.log.length > 200) state.log.shift();
+  touchDay();
+  save();
+  renderMini();
+
+  const intent = detectIntent(text);
+  let payload;
+
+  if (intent === "greet") payload = greetAnswer();
+  else if (intent === "identity") payload = identityAnswer();
+  else if (intent === "plan") payload = answerOfPlan();
+  else if (intent === "test") payload = answerOfTest();
+  else if (intent === "project") payload = answerOfProject(text);
+  else {
+    const pair = pairRetrieve(text);
+    if (pair) payload = answerOfCompare(pair[0], pair[1]);
+    else {
+      const hits = retrieve(text, 3);
+      if (hits.length && hits[0].s >= 3) payload = answerOfKnowledge(hits[0].k);
+      else payload = fallbackAnswer(text);
+    }
+  }
+  addBotMsg(payload);
+}
+
+/* ---------------- 6. 事件：对话区 ---------------- */
+$("#btnSend").addEventListener("click", sendInput);
+$("#input").addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendInput(); }
+});
+$("#input").addEventListener("input", e => {
+  e.target.style.height = "auto";
+  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+});
+
+function sendInput() {
+  const el = $("#input");
+  const v = el.value.trim();
+  if (!v) return;
+  el.value = "";
+  el.style.height = "auto";
+  ask(v);
+}
+
+$("#chatScroll").addEventListener("click", e => {
+  const chip = e.target.closest("[data-ask]");
+  if (chip) { ask(chip.dataset.ask); return; }
+
+  const opt = e.target.closest("[data-opt]");
+  if (opt) { resolveInline(Number(opt.dataset.opt), opt); return; }
+
+  const src = e.target.closest("[data-src]");
+  if (src) { openSource(src.dataset.src); return; }
+
+  const tool = e.target.closest("[data-act]");
+  if (tool) {
+    if (tool.dataset.act === "copy") {
+      navigator.clipboard?.writeText(tool.closest(".msg").querySelector(".bubble").innerText);
+      toast("已复制这条回答");
+    } else if (tool.dataset.act === "good") {
+      toast("已记录你的反馈，谢谢");
+    }
+  }
+});
+
+function resolveInline(idx, btnEl) {
+  const q = quizById(inlineQuiz);
+  if (!q) return;
+  const box = btnEl.closest(".askchips");
+  const fb = document.getElementById("inlineFb");
+  const ok = idx === q.answer;
+  $$("[data-opt]", box).forEach(b => {
+    const i = Number(b.dataset.opt);
+    b.disabled = true;
+    b.style.cursor = "default";
+    if (i === q.answer) b.classList.add("correct");
+    else if (i === idx) b.classList.add("wrong");
+    b.style.borderColor = i === q.answer ? "#8ee0b8" : (i === idx ? "#f3c0c0" : "#e6e9f2");
+    b.style.background = i === q.answer ? "#f2fdf8" : (i === idx ? "#fff6f6" : "#fbfcff");
+  });
+  recordQuiz(q, ok);
+  if (fb) {
+    fb.innerHTML = `<div class="q-feedback ${ok ? "ok" : "no"}">
+      <b>${ok ? "✓ 判断正确" : "✕ 再想想"}</b>${esc(q.explain)}
+      ${ok ? "" : `<div class="backlink"><button class="askchip" data-ask="解释一下「${esc(kbById(q.kp).title)}」">回到知识点：${esc(kbById(q.kp).title)}</button></div>`}
+    </div>`;
+  }
+  inlineQuiz = null;
+  scrollBottom();
+}
+
+function openSource(id) {
+  const k = kbById(id);
+  if (!k) return;
+  const ok = confirm(`【${k.title}】(${modById(k.module).name})\n\n${k.def}\n\n要点：\n${k.points.map((p, i) => `${i + 1}. ${p}`).join("\n")}\n\n情境：${k.example}\n\n点击“确定”继续浏览。`);
+  if (ok) return;
+}
+
+/* ---------------- 7. 右栏 / 快捷入口 ---------------- */
+const HOT = [
+  "技术的五个特征分别是什么？",
+  "三视图的投影规律怎么记？",
+  "结构的稳定性由什么决定？",
+  "流程优化为什么不能只减环节？",
+  "开环控制和闭环控制怎么区分？",
+  "五素养在项目里怎么体现？",
+];
+
+function renderHot() {
+  $("#hotRow").innerHTML = HOT.map(h => `<button class="hot" data-ask="${esc(h)}">${esc(h)}</button>`).join("");
+}
+$("#hotRow").addEventListener("click", e => {
+  const b = e.target.closest("[data-ask]");
+  if (b) ask(b.dataset.ask);
+});
+$("#welcome").addEventListener("click", e => {
+  const c = e.target.closest("[data-ask]");
+  if (c) ask(c.dataset.ask);
+});
+
+function renderModList() {
+  $("#modList").innerHTML = MODULES.map(m => {
+    const r = rateOf(m.id);
+    const pct = r === null ? "未练" : `${Math.round(r * 100)}%`;
+    return `<button class="mod-row" data-ask="介绍一下${m.name}（${m.sub}）的核心内容">
+      <span class="mod-dot" style="background:${m.color}"></span>
+      <b>${m.name}</b><span>${pct}</span>
+    </button>`;
+  }).join("");
+}
+
+function renderSuggest() {
+  const items = [
+    "稳定性与强度有什么区别？",
+    "什么是技术试验？有哪几种？",
+    "我该怎么安排复习？",
+    "我想做一个自动浇花装置",
+    "设计的一般过程包括哪些阶段？",
+  ];
+  $("#suggestList").innerHTML = items.map(s => `<button class="suggest" data-ask="${esc(s)}">${esc(s)}</button>`).join("");
+}
+$(".chat-side").addEventListener("click", e => {
+  const b = e.target.closest("[data-ask]");
+  if (b) ask(b.dataset.ask);
+});
+
+/* ---------------- 8. 知识地图 ---------------- */
+function rateOf(modId) {
+  const s = state.seen[modId];
+  if (!s || !s.a) return null;
+  return s.c / s.a;
+}
+
+function renderMap() {
+  $("#mapGrid").innerHTML = MODULES.map(m => {
+    const r = rateOf(m.id);
+    const pct = r === null ? 0 : Math.round(r * 100);
+    const label = r === null ? "未开始" : (pct >= 80 ? "已掌握" : "进行中");
+    const color = r === null ? "#e2e8f4" : (pct >= 80 ? "#8ee0b8" : "#ffd7a8");
+    return `<button class="map-card" data-mod="${m.id}">
+      <div class="map-card-top">
+        <span class="map-ico" style="background:${m.color}">${m.icon}</span>
+        <span class="sub">${m.items.length} 个知识点</span>
+      </div>
+      <h3>${m.name}</h3>
+      <div class="sub">${m.sub}</div>
+      <div class="desc">${m.desc}</div>
+      <div class="map-bar"><i style="width:${pct}%;background:${color}"></i></div>
+      <div class="map-foot"><span>${m.comp.join(" / ")}</span><span>${label}</span></div>
+    </button>`;
+  }).join("");
+}
+
+$("#mapGrid").addEventListener("click", e => {
+  const card = e.target.closest("[data-mod]");
+  if (!card) return;
+  $$(".map-card").forEach(c => c.classList.remove("sel"));
+  card.classList.add("sel");
+  renderTopics(card.dataset.mod);
+});
+
+function renderTopics(modId) {
+  const m = modById(modId);
+  const panel = $("#topicPanel");
+  panel.innerHTML = `<div class="topic-head"><h3>${m.name} · ${m.sub}</h3>
+      <span class="tagx">素养指向：${m.comp.join("、")}</span>
+      <span class="tagx" style="margin-left:auto">${m.items.length} 个知识点</span>
+    </div>
+    <div class="topic-grid">${m.items.map(id => {
+      const k = kbById(id);
+      const s = state.seen[modId];
+      const color = !s || !s.a ? "#d6dcec" : (s.c / s.a >= 0.8 ? "#12a06a" : "#d98324");
+      return `<div class="topic-item">
+        <span class="st" style="background:${color}"></span>
+        <div class="t-main"><b>${k.title}</b><p>${k.def}</p></div>
+        <div class="topic-acts">
+          <button class="mini-btn" data-ask="详细讲讲「${esc(k.title)}」">讲解</button>
+          <button class="mini-btn" data-quizmod="${modId}">练一题</button>
+        </div>
+      </div>`;
+    }).join("")}</div>`;
+}
+
+$("#topicPanel").addEventListener("click", e => {
+  const q = e.target.closest("[data-quizmod]");
+  if (q) { startQuiz(q.dataset.quizmod); return; }
+  const a = e.target.closest("[data-ask]");
+  if (a) { switchView("chat"); ask(a.dataset.ask); }
+});
+
+/* ---------------- 9. 练测 ---------------- */
+let quizSet = [], quizIdx = 0, quizAns = 0, quizWrong = [];
+
+function renderQuizSetup() {
+  $("#quizWrap").innerHTML = `<div class="quiz-setup">
+    <h2>一次一组，用错题定位薄弱点</h2>
+    <p>每组 5 题，覆盖你选择的模块。答错不只是给答案，还会标注错因标签并写入错题本。</p>
+    <div class="filter-label">选择模块（可多选，不选则全模块随机）</div>
+    <div class="mod-chips" id="modChips">
+      ${MODULES.map(m => `<button class="mchip" data-mod="${m.id}">${m.name}</button>`).join("")}
+    </div>
+    <div class="btn-row" style="justify-content:flex-start">
+      <button class="btn primary" id="btnStartQuiz">开始练习</button>
+      <button class="btn ghost" id="btnWrongReview">只看错题本</button>
+    </div>
+  </div>`;
+
+  $("#modChips").addEventListener("click", e => {
+    const b = e.target.closest("[data-mod]");
+    if (b) b.classList.toggle("active");
+  });
+  $("#btnStartQuiz").addEventListener("click", () => {
+    const sel = $$("#modChips .mchip.active").map(b => b.dataset.mod);
+    startQuiz(sel);
+  });
+  $("#btnWrongReview").addEventListener("click", showWrongReview);
+}
+
+function startQuiz(mods) {
+  let pool = QUIZ;
+  if (Array.isArray(mods)) {
+    if (mods.length) pool = QUIZ.filter(q => mods.includes(q.module));
+  } else if (typeof mods === "string") {
+    pool = QUIZ.filter(q => q.module === mods);
+  }
+  if (!pool.length) pool = QUIZ;
+  const shuffled = pool.slice().sort(() => Math.random() - 0.5).slice(0, 5);
+  quizSet = shuffled; quizIdx = 0; quizAns = 0; quizWrong = [];
+  switchView("quiz");
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const q = quizSet[quizIdx];
+  const m = modById(q.module);
+  const pct = (quizIdx / quizSet.length) * 100;
+  $("#quizWrap").innerHTML = `<div class="quiz-card">
+    <div class="quiz-top">
+      <span class="q-tag" style="background:${m.color}18;color:${m.color}">${m.name}</span>
+      <span class="q-tag">${q.type === "judge" ? "判断题" : "单选题"}</span>
+      <div class="quiz-prog"><i style="width:${pct}%"></i></div>
+      <span class="quiz-count">${quizIdx + 1} / ${quizSet.length}</span>
+    </div>
+    <p class="q-text">${esc(q.q)}</p>
+    <div class="q-opts" id="qOpts">
+      ${q.options.map((o, i) => `<button class="opt" data-i="${i}">
+        <span class="k">${q.type === "judge" ? (i === 0 ? "T" : "F") : "ABCD"[i]}</span>
+        <span>${esc(o)}</span></button>`).join("")}
+    </div>
+    <div id="qFb"></div>
+  </div>`;
+  $("#qOpts").addEventListener("click", e => {
+    const b = e.target.closest(".opt");
+    if (!b || b.disabled) return;
+    answerQuiz(Number(b.dataset.i));
+  });
+}
+
+function answerQuiz(i) {
+  const q = quizSet[quizIdx];
+  const ok = i === q.answer;
+  if (!ok) quizWrong.push(q);
+  $$("#qOpts .opt").forEach(b => {
+    const k = Number(b.dataset.i);
+    b.disabled = true;
+    if (k === q.answer) b.classList.add("correct");
+    else if (k === i) b.classList.add("wrong");
+    else b.classList.add("muted");
+  });
+  recordQuiz(q, ok);
+  const fb = $("#qFb");
+  fb.innerHTML = `<div class="q-feedback ${ok ? "ok" : "no"}">
+    <b>${ok ? "✓ 正确" : "✕ 答错了，错因： " + q.tag}</b>
+    ${esc(q.explain)}
+    <div class="backlink"><button class="askchip" id="fbGo">${ok ? "查看该知识点" : "回到知识点补一补"}</button></div>
+  </div>
+  <div class="btn-row" style="justify-content:flex-end;margin-top:14px">
+    <button class="btn primary" id="btnNext">${quizIdx + 1 === quizSet.length ? "查看报告" : "下一题"}</button>
+  </div>`;
+  $("#fbGo").addEventListener("click", () => {
+    switchView("chat");
+    ask(`详细讲讲「${kbById(q.kp).title}」`);
+  });
+  $("#btnNext").addEventListener("click", () => {
+    quizIdx++;
+    if (quizIdx >= quizSet.length) renderQuizResult();
+    else renderQuizQuestion();
+  });
+}
+
+function recordQuiz(q, ok) {
+  state.quiz++;
+  if (ok) state.correct++;
+  else if (!state.wrong.includes(q.id)) state.wrong.push(q.id);
+
+  if (!state.seen[q.module]) state.seen[q.module] = { a: 0, c: 0 };
+  state.seen[q.module].a++;
+  if (ok) state.seen[q.module].c++;
+
+  // 素养分数：答对 +4，答错 -1，限幅 5—98
+  const m = modById(q.module);
+  m.comp.forEach(cn => {
+    const c = COMPETENCIES.find(x => x.name === cn);
+    if (c) state.comp[c.id] = Math.max(5, Math.min(98, state.comp[c.id] + (ok ? 4 : -1)));
+  });
+  touchDay();
+  save();
+  renderMini();
+  renderProfile();
+}
+
+function renderQuizResult() {
+  const total = quizSet.length;
+  const pct = Math.round((scoreOfSet() / total) * 100);
+  const weakMods = {};
+  quizWrong.forEach(q => { weakMods[q.module] = (weakMods[q.module] || 0) + 1; });
+
+  $("#quizWrap").innerHTML = `<div class="quiz-result">
+    <div class="score-ring" style="--p:${pct}%"><span>${pct}<em>分</em></span></div>
+    <h2>${pct >= 80 ? "这一组很稳" : pct >= 60 ? "基础在手，细节还需打磨" : "先回到概念，把地基垫实"}</h2>
+    <p class="lead">本组 ${total} 题，答对 ${scoreOfSet()} 题。下面是学伴给你的诊断与下一步建议。</p>
+    <div class="diag-list">
+      ${Object.keys(weakMods).length
+        ? Object.entries(weakMods).map(([mid, n]) => {
+            const m = modById(mid);
+            return `<div class="diag-item"><i style="color:${m.color}">◆</i><div><b>${m.name}（${m.sub}）</b>错了 ${n} 题。建议先回看「${kbById(m.items[0]).title}」，再做一次该模块专项练习。</div></div>`;
+          }).join("")
+        : `<div class="diag-item"><i style="color:#12a06a">✓</i><div><b>没有明显薄弱模块。</b>可以尝试跨模块综合题，或把某个知识点用“给同学讲一遍”的方式检验。</div></div>`}
+      <div class="diag-item"><i style="color:#3355e0">→</i><div><b>下一步：</b>错题已进入错题本。三天后回做一次，若仍错，说明是概念性误解而非记忆问题。</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="btnAgain">再来一组</button>
+      <button class="btn ghost" id="btnBackSetup">换模块</button>
+      <button class="btn ghost" id="btnGoWrong">看错题本</button>
+    </div>
+  </div>`;
+  $("#btnAgain").addEventListener("click", () => startQuiz([]));
+  $("#btnBackSetup").addEventListener("click", renderQuizSetup);
+  $("#btnGoWrong").addEventListener("click", showWrongReview);
+}
+
+function scoreOfSet() {
+  return quizSet.filter(q => !quizWrong.some(w => w.id === q.id)).length;
+}
+
+function showWrongReview() {
+  const list = state.wrong.map(id => quizById(id)).filter(Boolean);
+  $("#quizWrap").innerHTML = `<div class="quiz-setup">
+    <h2>错题本 <span style="font-size:13px;color:#9aa3b8">共 ${list.length} 题</span></h2>
+    <p>错题不是“记住答案”，而是要回到概念。下面每题都标注了错因标签与对应知识点。</p>
+    <div class="wrong-list">
+      ${list.length ? list.map(q => `<div class="wrong-item">
+        <span class="qtag">${esc(q.tag)}</span>
+        <div class="qt">${esc(q.q)}<br><span style="color:#8b95ad;font-size:11.5px">知识点：${esc(kbById(q.kp).title)} · 正确答案：${q.type === "judge" ? (q.answer === 0 ? "正确" : "错误") : "ABCD"[q.answer]}</span></div>
+        <button class="mini-btn" data-ask="详细讲讲「${esc(kbById(q.kp).title)}」">补概念</button>
+      </div>`).join("") : `<div class="empty">还没有错题。去练一组吧。</div>`}
+    </div>
+    <div class="btn-row" style="justify-content:flex-start;margin-top:18px">
+      <button class="btn primary" id="btnBackSetup2">返回练习</button>
+    </div>
+  </div>`;
+  $("#quizWrap").addEventListener("click", e => {
+    const b = e.target.closest("[data-ask]");
+    if (b) { switchView("chat"); ask(b.dataset.ask); return; }
+    if (e.target.id === "btnBackSetup2") renderQuizSetup();
+  });
+}
+
+/* ---------------- 10. 学习档案 ---------------- */
+function renderProfile() {
+  $("#statAsk").textContent = state.asks;
+  $("#statQuiz").textContent = state.quiz;
+  $("#statAcc").textContent = state.quiz ? Math.round((state.correct / state.quiz) * 100) + "%" : "—";
+  $("#statDays").textContent = state.days.length;
+
+  drawRadar();
+
+  // 诊断建议
+  const lines = [];
+  const weak = MODULES.map(m => ({ m, r: rateOf(m.id) }))
+    .filter(x => x.r !== null && x.r < 0.7)
+    .sort((a, b) => a.r - b.r);
+
+  if (!state.quiz && !state.asks) {
+    lines.push(`<div class="diag-line">还没有学习证据。建议先做一组 <b>5 题</b> 的诊断练习，我会据此给出能力画像。</div>`);
+  } else {
+    if (weak.length) {
+      lines.push(`<div class="diag-line"><b>优先补强：</b>${weak.slice(0, 2).map(x => `${x.m.name}（正确率 ${Math.round(x.r * 100)}%）`).join("、")}。这两块的错误多集中在概念边界不清，建议用“对比表”的方式整理。</div>`);
+    } else if (state.quiz) {
+      lines.push(`<div class="diag-line"><b>掌握较稳：</b>已练模块正确率均在 70% 以上，可以进入跨模块的综合项目任务。</div>`);
+    }
+    const lowComp = COMPETENCIES.map(c => ({ c, v: state.comp[c.id] })).sort((a, b) => a.v - b.v)[0];
+    lines.push(`<div class="diag-line"><b>素养短板：</b>「${lowComp.c.name}」当前证据最弱（${lowComp.v} 分）。${lowComp.c.name === "物化能力" ? "建议把最近一次的方案做成实物模型并完成一次加载或联调试验。" : "建议针对该素养做一次“说给别人听”的讲解，讲解是最快的检验方式。"}</div>`);
+    lines.push(`<div class="diag-line"><b>学习行为：</b>累计提问 ${state.asks} 次、练习 ${state.quiz} 题，连续学习 ${state.days.length} 天。${state.asks > state.quiz * 2 ? "提问多于练习，注意把理解落到“做出来”。" : "练习与提问比例合理，保持这个节奏。"}</div>`);
+    const modsDone = Object.values(state.seen).filter(s => s.a >= 2).length;
+    lines.push(`<div class="diag-line"><b>覆盖进度：</b>${modsDone} / 7 个模块已有练习记录，${state.wrong.length} 道题进入错题本。</div>`);
+  }
+  $("#diag").innerHTML = lines.join("");
+
+  // 错题本
+  const wl = state.wrong.map(id => quizById(id)).filter(Boolean);
+  $("#wrongCount").textContent = `共 ${wl.length} 题`;
+  $("#wrongList").innerHTML = wl.length
+    ? wl.map(q => `<div class="wrong-item">
+        <span class="qtag">${esc(q.tag)}</span>
+        <div class="qt">${esc(q.q)}</div>
+        <button class="mini-btn" data-ask="详细讲讲「${esc(kbById(q.kp).title)}」">补概念</button>
+      </div>`).join("")
+    : `<div class="empty">错题本是空的——要么你还没练，要么你真的很稳。</div>`;
+
+  renderMini();
+}
+
+function renderMini() {
+  $("#miniAsk").textContent = state.asks;
+  $("#miniQuiz").textContent = state.quiz;
+  const pct = Math.min(100, Math.round((state.quiz / 30) * 100));
+  $("#miniBar").style.width = pct + "%";
+  $("#miniTip").textContent = state.quiz >= 30
+    ? "本阶段练习量已达标，试试项目任务吧"
+    : `再完成 ${30 - state.quiz} 道练习即可达成阶段目标`;
+}
+
+function drawRadar() {
+  const cv = $("#radar");
+  if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth || 520, H = 400;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  const cx = W / 2, cy = H / 2 + 6, R = Math.min(W, H) * 0.34;
+  const n = COMPETENCIES.length;
+  const ang = i => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+
+  // 网格
+  for (let ring = 1; ring <= 4; ring++) {
+    ctx.beginPath();
+    for (let i = 0; i <= n; i++) {
+      const a = ang(i % n), r = (R * ring) / 4;
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = ring === 4 ? "#dfe4f2" : "#eef1f8";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  // 轴线
+  for (let i = 0; i < n; i++) {
+    const a = ang(i);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+    ctx.strokeStyle = "#eef1f8";
+    ctx.stroke();
+  }
+  // 数据面
+  ctx.beginPath();
+  COMPETENCIES.forEach((c, i) => {
+    const a = ang(i), r = (R * state.comp[c.id]) / 100;
+    const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  const g = ctx.createLinearGradient(cx, cy - R, cx, cy + R);
+  g.addColorStop(0, "rgba(51,85,224,.34)");
+  g.addColorStop(1, "rgba(123,92,240,.16)");
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.strokeStyle = "rgba(51,85,224,.7)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 顶点
+  COMPETENCIES.forEach((c, i) => {
+    const a = ang(i), r = (R * state.comp[c.id]) / 100;
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 3.4, 0, Math.PI * 2);
+    ctx.fillStyle = "#3355e0";
+    ctx.fill();
+  });
+
+  // 标签 + 分值
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  COMPETENCIES.forEach((c, i) => {
+    const a = ang(i), x = cx + Math.cos(a) * (R + 46), y = cy + Math.sin(a) * (R + 34);
+    ctx.font = "600 13px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "#38445e";
+    ctx.fillText(c.name, x, y - 8);
+    ctx.font = "11px 'PingFang SC','Microsoft YaHei',sans-serif";
+    ctx.fillStyle = "#9aa3b8";
+    ctx.fillText(state.comp[c.id] + " 分", x, y + 9);
+  });
+}
+
+/* ---------------- 11. 视图 / 导航 / 设置 ---------------- */
+const VIEW_META = {
+  chat: ["对话学习", "用问题驱动理解，让每一次追问都指向“会设计”"],
+  map: ["知识地图", "七个模块、三十二个知识点，看清课程结构与自己的位置"],
+  quiz: ["智能练测", "每组五题，答错给错因，题目直连知识点"],
+  profile: ["学习档案", "提问、练习、错题与五素养画像，全部由学习证据生成"],
+};
+
+function switchView(v) {
+  $$(".view").forEach(s => s.classList.toggle("active", s.id === "view-" + v));
+  $$(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  $$(".mobile-nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  $("#viewTitle").textContent = VIEW_META[v][0];
+  $("#viewSub").textContent = VIEW_META[v][1];
+  if (v === "map") renderMap();
+  if (v === "quiz") renderQuizSetup();
+  if (v === "profile") renderProfile();
+  if (v === "map" && !$("#topicPanel").dataset.init) {
+    $("#topicPanel").dataset.init = "1";
+  }
+}
+
+$("#nav").addEventListener("click", e => {
+  const b = e.target.closest(".nav-item");
+  if (b) switchView(b.dataset.view);
+});
+
+$("#mobileNav").addEventListener("click", e => {
+  const b = e.target.closest(".mobile-nav-item");
+  if (b) switchView(b.dataset.view);
+});
+
+// 模式切换（两处）
+function setMode(m) {
+  mode = m;
+  $$(".seg-item").forEach(b => b.classList.toggle("active", b.dataset.mode === m));
+  toast(m === "guide" ? "已切换为引导式：先问后讲" : "已切换为讲解式：先讲后练");
+}
+$$(".seg").forEach(seg => seg.addEventListener("click", e => {
+  const b = e.target.closest(".seg-item");
+  if (b) setMode(b.dataset.mode);
+}));
+
+// 设置弹窗
+$("#btnSettings").addEventListener("click", () => $("#modal").classList.add("show"));
+$("#btnCloseModal").addEventListener("click", () => $("#modal").classList.remove("show"));
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") $("#modal").classList.remove("show"); });
+$("#btnReset").addEventListener("click", () => {
+  if (!confirm("确定清空本地学习记录吗？该操作不可撤销。")) return;
+  state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+  save(); renderAll(); toast("已清空学习记录");
+});
+
+$("#btnQuizAsk").addEventListener("click", () => ask("给我出一道题"));
+
+/* ---------------- 12. 初始化 ---------------- */
+function renderAll() {
+  renderHot(); renderModList(); renderSuggest(); renderMini(); renderMap(); renderProfile();
+}
+
+function init() {
+  renderAll();
+  touchDay();
+  // 演示/截图用参数：?q= 直接提问；?view= 切换视图；?seed=1 注入样例学习数据
+  const p = new URLSearchParams(location.search);
+  if (p.get("seed") === "1") { seedDemo(); renderAll(); }
+  if (p.get("q")) setTimeout(() => ask(p.get("q")), 220);
+  if (p.get("view")) switchView(p.get("view"));
+  if (p.get("topic")) {
+    const card = document.querySelector(`.map-card[data-mod="${p.get("topic")}"]`);
+    if (card) card.classList.add("sel");
+    renderTopics(p.get("topic"));
+  }
+  if (p.get("demo") === "quizcard") {
+    quizSet = QUIZ.slice(0, 5); quizIdx = 0; quizAns = 0; quizWrong = [];
+    switchView("quiz");
+    renderQuizQuestion();
+    setTimeout(() => {
+      const q = quizSet[0];
+      const wrongIdx = (q.answer + 1) % q.options.length;
+      answerQuiz(wrongIdx);
+    }, 120);
+  }
+  if (p.get("demo") === "result") {
+    quizSet = QUIZ.slice(0, 5);
+    quizIdx = quizSet.length;
+    quizWrong = [quizSet[1], quizSet[3]];
+    quizAns = 3;
+    switchView("quiz");
+    renderQuizResult();
+  }
+}
+
+/** 生成一份样例学习记录，用于演示"学习档案"的真实形态 */
+function seedDemo() {
+  state.asks = 23;
+  state.quiz = 18;
+  state.correct = 14;
+  state.wrong = ["q6", "q10", "q15", "q23"];
+  state.seen = {
+    m1: { a: 5, c: 5 }, m2: { a: 6, c: 4 }, m3: { a: 4, c: 3 }, m6: { a: 3, c: 2 },
+  };
+  state.comp = { c1: 76, c2: 62, c3: 58, c4: 48, c5: 41 };
+  const d = new Date();
+  state.days = [0, 1, 2, 3, 5, 6, 7].map(k => {
+    const x = new Date(d.getTime() - k * 86400000);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+  });
+  save();
+}
+
+window.addEventListener("resize", () => drawRadar());
+init();
+
+
+
+</script>
+</body>
+</html>
